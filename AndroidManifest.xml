@@ -12,10 +12,10 @@
 
     <application
             android:icon="@drawable/icon"
-            android:label="aRevelation">
+            android:label="aRevelation"
+            android:theme="@android:style/Theme.Holo">
         <activity
-                android:name=".MainActivity"
-                android:theme="@android:style/Theme.Holo">
+                android:name=".MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
@@ -25,5 +25,11 @@
                 <data android:scheme=".MainActivity"></data>
             </intent-filter>
         </activity>
+
+        <activity android:name=".ui.FileActivity"
+                android:parentActivityName=".MainActivity">
+
+        </activity>
+        <activity android:name=".ui.EntryActivity"/>
     </application>
 </manifest>

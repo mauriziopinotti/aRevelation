@@ -36,8 +36,7 @@ public class MainActivity extends Activity {
 
     public final static String MAIN_MENU_FRAGMENT       = "MainMenuFragment";
     public final static String OPEN_FILE_FRAGMENT       = "OpenFileFragment";
-    public final static String FILE_ENTRIES_FRAGMENT    = "FileEntriesFragment";
-    public final static String ENTRY_FRAGMENT           = "EntryFragment";
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -81,13 +80,9 @@ public class MainActivity extends Activity {
     Fragment getCurrentFragment() {
         Fragment myFragment = getFragmentManager().findFragmentByTag(MAIN_MENU_FRAGMENT);
         if (myFragment.isVisible()) return myFragment;
-            myFragment = getFragmentManager().findFragmentByTag(OPEN_FILE_FRAGMENT);
+        myFragment = getFragmentManager().findFragmentByTag(OPEN_FILE_FRAGMENT);
         if (myFragment.isVisible()) return myFragment;
-            myFragment = getFragmentManager().findFragmentByTag(FILE_ENTRIES_FRAGMENT);
-        if (myFragment.isVisible()) return myFragment;
-            myFragment = getFragmentManager().findFragmentByTag(ENTRY_FRAGMENT);
-        if (myFragment.isVisible()) return myFragment;
-            else return null;
+        else return null;
 
     }
 

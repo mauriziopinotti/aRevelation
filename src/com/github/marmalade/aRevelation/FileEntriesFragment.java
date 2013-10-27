@@ -24,6 +24,7 @@ import android.content.ClipData;
 import android.content.ClipboardManager;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -31,12 +32,13 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.*;
 
+import com.github.marmalade.aRevelation.ui.EntryActivity;
+
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
-import javax.crypto.BadPaddingException;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 
@@ -87,7 +89,7 @@ public class FileEntriesFragment extends Fragment implements
     public FileEntriesFragment() {};
 
 
-    public static FileEntriesFragment newInstance(String decryptedXML, byte[] encryptedXML, String password) {
+    public static FileEntriesFragment newInstance(String decryptedXML, String password) {
     	FileEntriesFragment fragment = new FileEntriesFragment();
 
     	Bundle bundle = new Bundle();
@@ -102,6 +104,8 @@ public class FileEntriesFragment extends Fragment implements
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+
     	if (savedInstanceState != null) {
             Log.w("aRevelation", "savedInstanceState");
 		    decryptedXML = savedInstanceState.getString(DECRYPTED_XML);
@@ -120,7 +124,6 @@ public class FileEntriesFragment extends Fragment implements
             top = arguments.getInt(TOP);
             Log.w("aRevelation", String.valueOf(isBlocked));
         }
-        super.onCreate(savedInstanceState);
     }
 
 
@@ -198,13 +201,10 @@ public class FileEntriesFragment extends Fragment implements
             lv.setAdapter(entryArrayAdapter);
             entryArrayAdapter.notifyDataSetChanged();
         } else {
-            FragmentTransaction fragmentTransaction = getFragmentManager().beginTransaction();
-            fragmentTransaction.replace(R.id.mainLayout,
-                    new EntryFragment(selectedEntry, password),
-                    MainActivity.ENTRY_FRAGMENT)
-                    .addToBackStack(null)
-                    .setCustomAnimations(android.R.animator.fade_in, android.R.animator.fade_out)
-                    .commit();
+            Intent intent = new Intent(getActivity().getApplicationContext(), EntryActivity.class);
+            intent.putExtra(EntryActivity.ENTRY, selectedEntry);
+            intent.putExtra(EntryActivity.PASSWORD, password);
+            startActivity(intent);
         }
     }
 

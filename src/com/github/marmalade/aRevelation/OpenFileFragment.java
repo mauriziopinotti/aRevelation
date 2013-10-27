@@ -20,14 +20,16 @@
 package com.github.marmalade.aRevelation;
 
 import android.app.AlertDialog;
-import android.app.FragmentTransaction;
 import android.app.ListFragment;
 import android.content.DialogInterface;
 import android.content.DialogInterface.OnClickListener;
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
+
+import com.github.marmalade.aRevelation.ui.FileActivity;
 
 import java.io.File;
 import java.io.RandomAccessFile;
@@ -156,14 +158,11 @@ public class OpenFileFragment extends ListFragment implements IBackPressedListen
             byte[] fileData = new byte[(int) f.length()];
             f.read(fileData);
             String decryptedXML = Cryptographer.decrypt(fileData, password);
-            FragmentTransaction fragmentTransaction = getFragmentManager().beginTransaction();
-            fragmentTransaction.replace(R.id.mainLayout,
-                    FileEntriesFragment.newInstance(decryptedXML, fileData, password),
-                    MainActivity.FILE_ENTRIES_FRAGMENT)
-                    .addToBackStack(null)
-                    .setCustomAnimations(android.R.animator.fade_in, android.R.animator.fade_out)
-                    .commit();
 
+            Intent intent = new Intent(getActivity().getApplicationContext(), FileActivity.class);
+            intent.putExtra(FileActivity.DECRYPTED_DATA, decryptedXML);
+            intent.putExtra(FileActivity.PASSWORD, password);
+            startActivity(intent);
         } catch (BadPaddingException e) {
             AlertDialog.Builder builder = new AlertDialog.Builder(this.getActivity());
             builder.setTitle("Error")
@@ -187,7 +186,7 @@ public class OpenFileFragment extends ListFragment implements IBackPressedListen
         }
     }
 
-    private class FileWrapper {
+    private static class FileWrapper {
 
         private File file;
 

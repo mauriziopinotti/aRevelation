@@ -68,7 +68,7 @@ public class EntryFragment extends Fragment implements AdapterView.OnItemClickLi
     public EntryFragment() {};
 
 
-    EntryFragment(FileEntriesFragment.Entry entry, String password) {
+    public EntryFragment(FileEntriesFragment.Entry entry, String password) {
         this.entry = entry;
         this.password = password;
     }
