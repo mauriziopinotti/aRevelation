@@ -166,7 +166,7 @@ public class OpenFileFragment extends Fragment implements AdapterView.OnItemClic
             f.read(fileData);
             String decryptedXML = Cryptographer.decrypt(fileData, password);
             FragmentTransaction fragmentTransaction = getFragmentManager().beginTransaction();
-            fragmentTransaction.replace(R.id.mainLinearLayout,
+            fragmentTransaction.replace(R.id.mainLayout,
                     FileEntriesFragment.newInstance(decryptedXML, fileData, password),
                     MainActivity.FILE_ENTRIES_FRAGMENT)
                     .addToBackStack(null)

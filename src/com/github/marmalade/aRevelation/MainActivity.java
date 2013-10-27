@@ -45,7 +45,7 @@ public class MainActivity extends Activity {
         setContentView(R.layout.main_layout);
         if(savedInstanceState == null) {
             FragmentTransaction fragmentTransaction = getFragmentManager().beginTransaction();
-            fragmentTransaction.add(R.id.mainLinearLayout, new MainMenuFragment(), MAIN_MENU_FRAGMENT);
+            fragmentTransaction.add(R.id.mainLayout, new MainMenuFragment(), MAIN_MENU_FRAGMENT);
             fragmentTransaction.commit();
         }
     }

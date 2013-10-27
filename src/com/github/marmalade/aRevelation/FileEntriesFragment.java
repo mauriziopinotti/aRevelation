@@ -199,7 +199,7 @@ public class FileEntriesFragment extends Fragment implements
             entryArrayAdapter.notifyDataSetChanged();
         } else {
             FragmentTransaction fragmentTransaction = getFragmentManager().beginTransaction();
-            fragmentTransaction.replace(R.id.mainLinearLayout,
+            fragmentTransaction.replace(R.id.mainLayout,
                     new EntryFragment(selectedEntry, password),
                     MainActivity.ENTRY_FRAGMENT)
                     .addToBackStack(null)
