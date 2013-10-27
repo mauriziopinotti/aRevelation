@@ -20,123 +20,122 @@
 package com.github.marmalade.aRevelation;
 
 import android.app.AlertDialog;
-import android.app.Fragment;
 import android.app.FragmentTransaction;
+import android.app.ListFragment;
 import android.content.DialogInterface;
+import android.content.DialogInterface.OnClickListener;
 import android.os.Bundle;
-import android.text.InputType;
-import android.view.LayoutInflater;
 import android.view.View;
-import android.view.ViewGroup;
-import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
-import android.widget.EditText;
 import android.widget.ListView;
-
-import javax.crypto.BadPaddingException;
 
 import java.io.File;
 import java.io.RandomAccessFile;
 import java.util.ArrayList;
 import java.util.Arrays;
 
+import javax.crypto.BadPaddingException;
+
 /**
  * Author: <a href="mailto:alexey.kislin@gmail.com">Alexey Kislin</a>
  * Date: 30.08.13
  * Time: 2:10
  */
-public class OpenFileFragment extends Fragment implements AdapterView.OnItemClickListener, IBackPressedListener {
+public class OpenFileFragment extends ListFragment implements IBackPressedListener {
 
-    private static final String DEFAULT_PATH="/";
+    private static final String DEFAULT_PATH = "/";
 
-	private static final String PATH = "path";
+    private static final String PATH = "mPath";
 
-    // Current path of a showed menu
-    private String path;
+    // Current mPath of a showed menu
+    private String mPath;
 
-    private ListView lv;
-    private ArrayList<FileWrapper> filesBrowserItems = new ArrayList<FileWrapper>();
-    private ArrayAdapter<FileWrapper> filesBrowserAdapter;
+    private ArrayList<FileWrapper> mFilesBrowserItems = new ArrayList<FileWrapper>();
+    private ArrayAdapter<FileWrapper> mFilesBrowserAdapter;
 
-    @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        return inflater.inflate(R.layout.open_file_layout, container, false);
+    public static OpenFileFragment newInstance(String path) {
+        OpenFileFragment fragment = new OpenFileFragment();
+
+        Bundle bundle = new Bundle();
+        bundle.putString(PATH, path);
+        fragment.setArguments(bundle);
+
+        return fragment;
     }
-    
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
-    	super.onCreate(savedInstanceState);
-    	
-    	Bundle arguments = getArguments();
-    	if (arguments != null) {
-	        path = arguments.getString(PATH);
-	}
+        super.onCreate(savedInstanceState);
 
-        if (path == null) {
-    	        path = DEFAULT_PATH;        
+        if (savedInstanceState == null) {
+            Bundle arguments = getArguments();
+            if (arguments != null) {
+                mPath = arguments.getString(PATH);
+            }
+
+            if (mPath == null) {
+                mPath = DEFAULT_PATH;
+            }
+
+        } else {
+            mPath = savedInstanceState.getString(PATH);
         }
+
+        mFilesBrowserAdapter = new ArrayAdapter<FileWrapper>(this.getActivity(),
+                android.R.layout.simple_list_item_1, mFilesBrowserItems);
+
+        setListAdapter(mFilesBrowserAdapter);
+        setLocation(new FileWrapper(mPath));
     }
 
     @Override
-    public void onStart() {
-        this.lv = (ListView)getActivity().findViewById(R.id.listView);
-        filesBrowserAdapter = new ArrayAdapter<FileWrapper>(this.getActivity(),
-                android.R.layout.simple_list_item_1, filesBrowserItems);
-        lv.setAdapter(filesBrowserAdapter);
-        lv.setOnItemClickListener(this);
-        setLocation(new FileWrapper(path));
-        super.onStart();
-    }
+    public void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
 
-    
-    public static OpenFileFragment newInstance(String path) {
-    	OpenFileFragment fragment = new OpenFileFragment();
-    	
-    	Bundle bundle = new Bundle();
-    	bundle.putString(PATH, path);
-    	fragment.setArguments(bundle);
-    	
-    	return fragment;
+        outState.putString(PATH, mPath);
     }
-
 
     private void setLocation(FileWrapper path) {
-        this.path = path.getFile().getAbsolutePath();
-        filesBrowserItems.clear();
-        if(path.getFile().getParent() != null)
-            filesBrowserItems.add(new FileWrapper(path.getFile().getParentFile(), "..."));
+        this.mPath = path.getFile().getAbsolutePath();
+        mFilesBrowserItems.clear();
+        if (path.getFile().getParent() != null) {
+            mFilesBrowserItems.add(new FileWrapper(path.getFile().getParentFile(), "..."));
+        }
         File[] sortedChildren = path.getFile().listFiles();
         Arrays.sort(sortedChildren);
-        for(File childFile : sortedChildren)
-            filesBrowserItems.add(new FileWrapper(childFile));
-        filesBrowserAdapter.notifyDataSetChanged();
-        lv.setSelection(0);         // Go to the top
+        for (File childFile : sortedChildren) {
+            mFilesBrowserItems.add(new FileWrapper(childFile));
+        }
+        mFilesBrowserAdapter.notifyDataSetChanged();
+//        lv.setSelection(0);         // Go to the top
     }
 
 
     private void openFile(final File file) {
-        DialogInterface.OnClickListener dialogClickListener = new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                switch (which){
-                    case DialogInterface.BUTTON_POSITIVE:
-                        askPassword(file);
-                        break;
-
-                    case DialogInterface.BUTTON_NEGATIVE:
-                        break;
-                }
-            }
-
-            private void askPassword(final File file) {
-                final AskPasswordDialogFragment d = new AskPasswordDialogFragment();
-
-                AskPasswordDialogFragment.AskPasswordOnClickListener dialogClickListener =  d.new AskPasswordOnClickListener() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this.getActivity());
+        builder.setTitle(R.string.open_file_title)
+                .setMessage(getString(R.string.open_file_message, file.getName()))
+                .setNegativeButton(android.R.string.no, null)
+                .setPositiveButton(android.R.string.yes, new OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
-                        switch (which){
+                        askPassword(file);
+                    }
+                })
+                .show();
+    }
+
+    private void askPassword(final File file) {
+        final AskPasswordDialogFragment d = new AskPasswordDialogFragment();
+
+        AskPasswordDialogFragment.AskPasswordOnClickListener dialogClickListener = d.new
+                AskPasswordOnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        switch (which) {
                             case DialogInterface.BUTTON_POSITIVE:
-                                tryToOpenFile(file, d.editText.getEditableText().toString());
+                                tryToOpenFile(file, d.editText.getEditableText().toString
+                                        ());
                                 break;
 
                             case DialogInterface.BUTTON_NEGATIVE:
@@ -146,23 +145,15 @@ public class OpenFileFragment extends Fragment implements AdapterView.OnItemClic
                     }
                 };
 
-                d.setOnClickListener(dialogClickListener);
-                d.show(getFragmentManager(), null);
-            }
-        };
-
-        AlertDialog.Builder builder = new AlertDialog.Builder(this.getActivity());
-        builder.setMessage("Do you want to open " + file.getName() + "?")
-                .setNegativeButton("No", dialogClickListener)
-                .setPositiveButton("Yes", dialogClickListener)
-                .show();
+        d.setOnClickListener(dialogClickListener);
+        d.show(getFragmentManager(), null);
     }
 
 
     private void tryToOpenFile(File file, String password) {
         try {
             RandomAccessFile f = new RandomAccessFile(file.getAbsoluteFile(), "r");
-            byte[] fileData = new byte[(int)f.length()];
+            byte[] fileData = new byte[(int) f.length()];
             f.read(fileData);
             String decryptedXML = Cryptographer.decrypt(fileData, password);
             FragmentTransaction fragmentTransaction = getFragmentManager().beginTransaction();
@@ -186,16 +177,15 @@ public class OpenFileFragment extends Fragment implements AdapterView.OnItemClic
         }
     }
 
-
     @Override
-    public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-        FileWrapper clickedFile = filesBrowserItems.get(position);
-        if(clickedFile.getFile().isDirectory() && clickedFile.getFile().canRead())
+    public void onListItemClick(ListView l, View v, int position, long id) {
+        FileWrapper clickedFile = mFilesBrowserItems.get(position);
+        if (clickedFile.getFile().isDirectory() && clickedFile.getFile().canRead()) {
             setLocation(clickedFile);
-        else if (clickedFile.getFile().isFile() && clickedFile.getFile().canRead())
+        } else if (clickedFile.getFile().isFile() && clickedFile.getFile().canRead()) {
             openFile(clickedFile.getFile());
+        }
     }
-
 
     private class FileWrapper {
 
@@ -237,8 +227,8 @@ public class OpenFileFragment extends Fragment implements AdapterView.OnItemClic
 
     @Override
     public void onBackPressed() {
-        if(filesBrowserItems.get(0).isBackElement)
-            setLocation(filesBrowserItems.get(0));
+        if (mFilesBrowserItems.get(0).isBackElement)
+            setLocation(mFilesBrowserItems.get(0));
         else
             getFragmentManager().popBackStack();
     }
