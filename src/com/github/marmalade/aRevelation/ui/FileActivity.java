@@ -2,11 +2,15 @@ package com.github.marmalade.aRevelation.ui;
 
 import android.app.Activity;
 import android.app.FragmentTransaction;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 
+import com.github.marmalade.aRevelation.AskPasswordDialogFragment;
 import com.github.marmalade.aRevelation.FileEntriesFragment;
 import com.github.marmalade.aRevelation.R;
+
+import java.io.File;
 
 /**
  * Created by sviro on 10/27/13.
@@ -14,34 +18,28 @@ import com.github.marmalade.aRevelation.R;
 public class FileActivity extends Activity {
     public final static String FILE_ENTRIES_FRAGMENT = "FileEntriesFragment";
 
-    public static final String DECRYPTED_DATA = "decrypted_data";
-    public static final String PASSWORD = "password";
+    public static final String PATH = "path";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main_layout);
 
-        String decryptedXML = null;
-        String password = null;
+        String path = null;
         Intent intent = getIntent();
         if (intent != null) {
-            decryptedXML = intent.getStringExtra(DECRYPTED_DATA);
-            password = intent.getStringExtra(PASSWORD);
+            path = intent.getStringExtra(PATH);
         }
 
-        if (decryptedXML == null || password == null) {
+        if (path == null) {
             finish();
             return;
         }
 
         if (savedInstanceState == null) {
             FragmentTransaction fragmentTransaction = getFragmentManager().beginTransaction();
-            fragmentTransaction.add(R.id.mainLayout,
-                    FileEntriesFragment.newInstance(decryptedXML, password),
-                    FILE_ENTRIES_FRAGMENT)
-                    .commit();
-
+            fragmentTransaction.add(R.id.mainLayout, FileEntriesFragment.newInstance(path),
+                    FILE_ENTRIES_FRAGMENT).commit();
         }
 
     }

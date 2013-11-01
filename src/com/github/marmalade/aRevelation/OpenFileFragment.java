@@ -121,7 +121,11 @@ public class OpenFileFragment extends ListFragment implements IBackPressedListen
                 .setPositiveButton(android.R.string.yes, new OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
-                        askPassword(file);
+                        Intent intent = new Intent(getActivity().getApplicationContext(), FileActivity.class);
+                        intent.putExtra(FileActivity.PATH, file.getAbsolutePath());
+                        startActivity(intent);
+
+//                        askPassword(file);
                     }
                 })
                 .show();
@@ -159,10 +163,10 @@ public class OpenFileFragment extends ListFragment implements IBackPressedListen
             f.read(fileData);
             String decryptedXML = Cryptographer.decrypt(fileData, password);
 
-            Intent intent = new Intent(getActivity().getApplicationContext(), FileActivity.class);
-            intent.putExtra(FileActivity.DECRYPTED_DATA, decryptedXML);
-            intent.putExtra(FileActivity.PASSWORD, password);
-            startActivity(intent);
+//            Intent intent = new Intent(getActivity().getApplicationContext(), FileActivity.class);
+//            intent.putExtra(FileActivity.DECRYPTED_DATA, decryptedXML);
+//            intent.putExtra(FileActivity.PASSWORD, password);
+//            startActivity(intent);
         } catch (BadPaddingException e) {
             AlertDialog.Builder builder = new AlertDialog.Builder(this.getActivity());
             builder.setTitle("Error")

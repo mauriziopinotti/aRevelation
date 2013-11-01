@@ -19,18 +19,23 @@
  */
 package com.github.marmalade.aRevelation;
 
-import android.app.*;
+import android.app.Activity;
+import android.app.AlertDialog;
+import android.app.Dialog;
+import android.app.ListFragment;
 import android.content.ClipData;
 import android.content.ClipboardManager;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
+import android.text.TextUtils;
 import android.util.Log;
-import android.view.LayoutInflater;
 import android.view.View;
-import android.view.ViewGroup;
-import android.widget.*;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
+import android.widget.ListView;
 
 import com.github.marmalade.aRevelation.ui.EntryActivity;
 
@@ -39,66 +44,70 @@ import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-
 import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.RandomAccessFile;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+
+import javax.crypto.BadPaddingException;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
 
 /**
  * Author: <a href="mailto:alexey.kislin@gmail.com">Alexey Kislin</a>
  * Date: 8/31/13
  * Time: 8:54 PM
  */
-public class FileEntriesFragment extends Fragment implements
-        AdapterView.OnItemClickListener, AdapterView.OnItemLongClickListener, IBackPressedListener {
+public class FileEntriesFragment extends ListFragment implements
+        AdapterView.OnItemLongClickListener, IBackPressedListener {
 
-    final static String REVELATION_XML_NODE_NAME    = "revelationdata";
-    final static String ENTRY_NODE_NAME             = "entry";
-    final static String TYPE_ATTRIBUTE              = "type";
-    final static String NAME_ATTRIBUTE              = "name";
-    final static String DESCRIPTION_ATTRIBUTE       = "description";
-    final static String UPDATED_ATTRIBUTE           = "updated";
-    final static String NOTES_ATTRIBUTE             = "notes";
-    final static String FIELD_ATTRIBUTE             = "field";
-    final static String ID_ATTRIBUTE                = "id";
-    private static final String DECRYPTED_XML       = "decrypted_xml";
-    private static final String PASSWORD            = "password";
-    private static final String BLOCKED             = "isBlocked";
-    private static final String POSITION            = "position";
-    private static final String TOP                 = "top";
+    final static String REVELATION_XML_NODE_NAME = "revelationdata";
+    final static String ENTRY_NODE_NAME = "entry";
+    final static String TYPE_ATTRIBUTE = "type";
+    final static String NAME_ATTRIBUTE = "name";
+    final static String DESCRIPTION_ATTRIBUTE = "description";
+    final static String UPDATED_ATTRIBUTE = "updated";
+    final static String NOTES_ATTRIBUTE = "notes";
+    final static String FIELD_ATTRIBUTE = "field";
+    final static String ID_ATTRIBUTE = "id";
+    private static final String BLOCKED = "isBlocked";
+    private static final String POSITION = "position";
+    private static final String TOP = "top";
+    private static final String FILE = "file";
 
-    private String decryptedXML;
-    private String password;
-    private ListView lv;
     private int savedScrollBarPosition;
     private int top;
     private List<Entry> entries;
     private ArrayAdapter<Entry> entryArrayAdapter;
-    private Activity activity;
     private boolean isBlocked;
+    private Uri mUri;
 
 
     /**
      * This constructor is used on restore if the process was killed.
      * You shouldn't remove it.
      */
-    public FileEntriesFragment() {};
+    public FileEntriesFragment() {
+    }
 
+    ;
 
-    public static FileEntriesFragment newInstance(String decryptedXML, String password) {
-    	FileEntriesFragment fragment = new FileEntriesFragment();
+    public static FileEntriesFragment newInstance(String path) {
+        FileEntriesFragment fragment = new FileEntriesFragment();
 
-    	Bundle bundle = new Bundle();
-    	bundle.putString(DECRYPTED_XML, decryptedXML);
-    	bundle.putString(PASSWORD, password);
-        bundle.putBoolean(BLOCKED, false);
-    	fragment.setArguments(bundle);
+        if (!TextUtils.isEmpty(path)) {
+            Bundle bundle = new Bundle();
+            bundle.putParcelable(FILE, Uri.fromFile(new File(path)));
+            fragment.setArguments(bundle);
+        }
 
-    	return fragment;
+        return fragment;
     }
 
 
@@ -106,122 +115,203 @@ public class FileEntriesFragment extends Fragment implements
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-    	if (savedInstanceState != null) {
+        Bundle arguments = getArguments();
+        if (arguments != null) {
+            mUri = arguments.getParcelable(FILE);
+            isBlocked = arguments.getBoolean(BLOCKED);
+        }
+
+        if (savedInstanceState != null) {
             Log.w("aRevelation", "savedInstanceState");
-		    decryptedXML = savedInstanceState.getString(DECRYPTED_XML);
-            password = savedInstanceState.getString(PASSWORD);
             isBlocked = savedInstanceState.getBoolean(BLOCKED);
             savedScrollBarPosition = savedInstanceState.getInt(POSITION);
             top = savedInstanceState.getInt(TOP);
             Log.w("aRevelation", String.valueOf(isBlocked));
-        } else if (getArguments() != null) {
-            Log.w("aRevelation", "arguments");
-            Bundle arguments = getArguments();
-            decryptedXML = arguments.getString(DECRYPTED_XML);
-            password = arguments.getString(PASSWORD);
-            isBlocked = arguments.getBoolean(BLOCKED);
-            savedScrollBarPosition = arguments.getInt(POSITION);
-            top = arguments.getInt(TOP);
-            Log.w("aRevelation", String.valueOf(isBlocked));
+        } else {
+            askPassword(mUri);
+        }
+
+        entries = new ArrayList<Entry>();
+        entryArrayAdapter = new ArrayAdapter<Entry>(getActivity(), android.R.layout.simple_list_item_1, entries);
+        setListAdapter(entryArrayAdapter);
+    }
+
+    private void askPassword(final Uri path) {
+        final AskPasswordDialogFragment d = new AskPasswordDialogFragment();
+
+        AskPasswordDialogFragment.AskPasswordOnClickListener dialogClickListener = d.new
+                AskPasswordOnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        switch (which) {
+                            case DialogInterface.BUTTON_POSITIVE:
+                                tryToOpenFile(d.editText.getEditableText().toString
+                                        ());
+                                break;
+
+                            case DialogInterface.BUTTON_NEGATIVE:
+                                Activity activity = getActivity();
+                                if (activity != null) {
+                                    activity.finish();
+                                }
+                                break;
+                        }
+                    }
+                };
+
+        d.setOnClickListener(dialogClickListener);
+        d.show(getFragmentManager(), null);
+    }
+
+    private void tryToOpenFile(String password) {
+        InputStream inputStream = null;
+        ByteArrayOutputStream bos = null;
+        try {
+            inputStream = getActivity().getContentResolver().openInputStream(mUri);
+            bos = new ByteArrayOutputStream();
+            byte[] buffer = new byte[1024];
+            int bytesRead;
+            while ((bytesRead = inputStream.read(buffer)) != -1) {
+                bos.write(buffer, 0, bytesRead);
+            }
+
+            String decryptedXML = Cryptographer.decrypt(bos.toByteArray(), password);
+            entries = Entry.parseDecryptedXml(decryptedXML);
+            updateEntries();
+
+//            Intent intent = new Intent(getActivity().getApplicationContext(), FileActivity.class);
+//            intent.putExtra(FileActivity.DECRYPTED_DATA, decryptedXML);
+//            intent.putExtra(FileActivity.PASSWORD, password);
+//            startActivity(intent);
+        } catch (BadPaddingException e) {
+            AlertDialog.Builder builder = new AlertDialog.Builder(this.getActivity());
+            builder.setTitle("Error")
+                    .setMessage("Invalid password");
+            builder.show();
+        } catch (Exception e) {
+            AlertDialog.Builder builder = new AlertDialog.Builder(this.getActivity());
+            builder.setTitle("Error")
+                    .setMessage(e.getMessage());
+            builder.show();
+        } finally {
+            if (bos != null) {
+                try {
+                    bos.close();
+                } catch (IOException e) {
+                    //do nothing
+                }
+            }
+
+            if (inputStream != null) {
+                try {
+                    inputStream.close();
+                } catch (IOException e) {
+                    //do nothing
+                }
+            }
         }
     }
 
-
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        this.activity = getActivity();
-        return inflater.inflate(R.layout.decrypted_file_layout, container, false);
-    }
+    public void onViewCreated(View view, Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
 
+        getListView().setOnItemLongClickListener(this);
+    }
 
     @Override
     public void onStart() {
-        lv = (ListView)activity.findViewById(R.id.itemsListView);
-        lv.setOnItemClickListener(this);
-        lv.setOnItemLongClickListener(this);
-        try {
-            if(isBlocked) {
-                restoreAccess();
-            } else {
-                entries = Entry.parseDecryptedXml(decryptedXML);
-                updateEntries();
-                lv.setSelectionFromTop(savedScrollBarPosition, top);
-            }
-        } catch (Exception e) {
-            //TODO Process error
-            e.printStackTrace();
-        }
         super.onStart();
+//        try {
+//            if(isBlocked) {
+//                restoreAccess();
+//            } else {
+//                entries = Entry.parseDecryptedXml(decryptedXML);
+//                updateEntries();
+//                lv.setSelectionFromTop(savedScrollBarPosition, top);
+//            }
+//        } catch (Exception e) {
+//            //TODO Process error
+//            e.printStackTrace();
+//        }
         // Restore previous position
     }
 
-
-    @Override
-    public void onPause() {
-        // Save previous position
-        savedScrollBarPosition = lv.getFirstVisiblePosition();
-        top = (lv.getChildAt(0) == null) ? 0 : lv.getChildAt(0).getTop();
-        super.onPause();
-    }
+//
+//    @Override
+//    public void onPause() {
+//        // Save previous position
+//        savedScrollBarPosition = lv.getFirstVisiblePosition();
+//        top = (lv.getChildAt(0) == null) ? 0 : lv.getChildAt(0).getTop();
+//        super.onPause();
+//    }
 
 
     @Override
     public void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
-        blockAccess();
-        outState.putString(DECRYPTED_XML, decryptedXML);
-        outState.putString(PASSWORD, password);
+//        blockAccess();
         outState.putBoolean(BLOCKED, isBlocked);
         outState.putInt(POSITION, savedScrollBarPosition);
         outState.putInt(TOP, top);
     }
 
-
     @Override
-    public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-        // I really don't like this. I will make it a little bit more beautiful later.
+    public void onListItemClick(ListView l, View v, int position, long id) {
+        Activity activity = getActivity();
+        if (activity == null) {
+            return;
+        }
 
         Entry selectedEntry = entryArrayAdapter.getItem(position);
-        if(selectedEntry.type == EntryType.folder) {
+        if (selectedEntry.type == EntryType.folder) {
             try {
-                Entry nonReal = new Entry("...", null, null, null, null, EntryType.nonreal.toString(), new ArrayList<Entry>(entries));
-                entryArrayAdapter = new ArrayAdapter<Entry>(activity, android.R.layout.simple_list_item_1, new ArrayList<Entry>(selectedEntry.children));
+                Entry nonReal = new Entry("...", null, null, null, null,
+                        EntryType.nonreal.toString(), new ArrayList<Entry>(entries));
+                entryArrayAdapter = new ArrayAdapter<Entry>(activity,
+                        android.R.layout.simple_list_item_1, new ArrayList<Entry>(selectedEntry
+                        .children));
                 entryArrayAdapter.insert(nonReal, 0);
                 entries = new ArrayList<Entry>();
                 entries.add(nonReal);
                 entries.addAll(selectedEntry.children);
-                lv.setAdapter(entryArrayAdapter);
+                setListAdapter(entryArrayAdapter);
             } catch (Exception e) {
                 e.printStackTrace();
             }
             entryArrayAdapter.notifyDataSetChanged();
-        } else if(selectedEntry.type == EntryType.nonreal) {
-            entryArrayAdapter = new ArrayAdapter<Entry>(activity, android.R.layout.simple_list_item_1, new ArrayList<Entry>(selectedEntry.children));
+        } else if (selectedEntry.type == EntryType.nonreal) {
+            entryArrayAdapter = new ArrayAdapter<Entry>(activity,
+                    android.R.layout.simple_list_item_1, new ArrayList<Entry>(selectedEntry
+                    .children));
             entries = new ArrayList<Entry>(selectedEntry.children);
-            lv.setAdapter(entryArrayAdapter);
+            setListAdapter(entryArrayAdapter);
             entryArrayAdapter.notifyDataSetChanged();
         } else {
-            Intent intent = new Intent(getActivity().getApplicationContext(), EntryActivity.class);
+            Intent intent = new Intent(activity.getApplicationContext(), EntryActivity.class);
             intent.putExtra(EntryActivity.ENTRY, selectedEntry);
-            intent.putExtra(EntryActivity.PASSWORD, password);
+            intent.putExtra(EntryActivity.PASSWORD, "test");
             startActivity(intent);
         }
     }
 
-
     @Override
     public boolean onItemLongClick(AdapterView<?> parent, View view, final int position, long id) {
-        final LongClickActionItems[] menuItems = new LongClickActionItems[] {LongClickActionItems.copySecretData};
-        ArrayAdapter<LongClickActionItems> menuAdapter = new ArrayAdapter<LongClickActionItems>(activity,
-                android.R.layout.simple_list_item_1, menuItems);
+        final Activity activity = getActivity();
+        if (activity == null) {
+            return true;
+        }
+
         AlertDialog.Builder builder = new AlertDialog.Builder(activity);
-        final CharSequence[] items= LongClickActionItems.getCharSequences();
-        builder.setItems(items,new DialogInterface.OnClickListener() {
+        final CharSequence[] items = LongClickActionItems.getCharSequences();
+        builder.setItems(items, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
-                if(items[which].equals(LongClickActionItems.copySecretData.toString())) {
-                    ClipboardManager clipboard = (ClipboardManager) activity.getSystemService(Context.CLIPBOARD_SERVICE);
-                    ClipData clip = ClipData.newPlainText("pass", entryArrayAdapter.getItem(position).getSecretFieldData());
+                if (items[which].equals(LongClickActionItems.copySecretData.toString())) {
+                    ClipboardManager clipboard = (ClipboardManager) activity.getSystemService
+                            (Context.CLIPBOARD_SERVICE);
+                    ClipData clip = ClipData.newPlainText("pass",
+                            entryArrayAdapter.getItem(position).getSecretFieldData());
                     clipboard.setPrimaryClip(clip);
                 }
             }
@@ -229,7 +319,7 @@ public class FileEntriesFragment extends Fragment implements
 
         Dialog d = builder.create();
         d.show();
-        return false;
+        return true;
     }
 
 
@@ -238,7 +328,7 @@ public class FileEntriesFragment extends Fragment implements
      */
     public void blockAccess() {
         // The adapter could be null on restore access if cancel button is pressed
-        if(entryArrayAdapter != null)
+        if (entryArrayAdapter != null)
             entryArrayAdapter.clear();
         isBlocked = true;
     }
@@ -248,46 +338,51 @@ public class FileEntriesFragment extends Fragment implements
      * Restore access on application open
      */
     private void restoreAccess() {
-        final AskPasswordDialogFragment d = new AskPasswordDialogFragment();
-
-        AskPasswordDialogFragment.AskPasswordOnClickListener dialogClickListener =  d.new AskPasswordOnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                switch (which) {
-                    case DialogInterface.BUTTON_POSITIVE:
-                        if(password.equals(d.editText.getEditableText().toString())) {
-                            try {
-                                entries = Entry.parseDecryptedXml(decryptedXML);
-                                updateEntries();
-                                lv.setSelectionFromTop(savedScrollBarPosition, top);
-                                isBlocked = false;
-                            } catch (Exception e) {
-                                e.printStackTrace();
-                            }
-                        } else {
-                            restoreAccess();
-                        }
-                        break;
-
-                    case DialogInterface.BUTTON_NEGATIVE:
-                        ((MainActivity)getActivity()).reload(); // Go to file menu
-                        break;
-                }
-            }
-        };
-
-        d.setOnClickListener(dialogClickListener);
-        d.setCancelable(false);
-        d.show(getFragmentManager(), null);
+//        final AskPasswordDialogFragment d = new AskPasswordDialogFragment();
+//
+//        AskPasswordDialogFragment.AskPasswordOnClickListener dialogClickListener =  d.new
+// AskPasswordOnClickListener() {
+//            @Override
+//            public void onClick(DialogInterface dialog, int which) {
+//                switch (which) {
+//                    case DialogInterface.BUTTON_POSITIVE:
+//                        if(password.equals(d.editText.getEditableText().toString())) {
+//                            try {
+//                                entries = Entry.parseDecryptedXml(decryptedXML);
+//                                updateEntries();
+//                                lv.setSelectionFromTop(savedScrollBarPosition, top);
+//                                isBlocked = false;
+//                            } catch (Exception e) {
+//                                e.printStackTrace();
+//                            }
+//                        } else {
+//                            restoreAccess();
+//                        }
+//                        break;
+//
+//                    case DialogInterface.BUTTON_NEGATIVE:
+//                        ((MainActivity)getActivity()).reload(); // Go to file menu
+//                        break;
+//                }
+//            }
+//        };
+//
+//        d.setOnClickListener(dialogClickListener);
+//        d.setCancelable(false);
+//        d.show(getFragmentManager(), null);
     }
 
 
     private void updateEntries() {
+        Activity activity = getActivity();
+        if (activity == null) {
+            return;
+        }
+
         entryArrayAdapter = new ArrayAdapter<Entry>(activity, android.R.layout.simple_list_item_1, entries);
-        lv.setAdapter(entryArrayAdapter);
+        setListAdapter(entryArrayAdapter);
         entryArrayAdapter.notifyDataSetChanged();
     }
-
 
     public static class Entry implements Serializable {
 
@@ -308,9 +403,9 @@ public class FileEntriesFragment extends Fragment implements
         }
 
         Entry(String name, String description,
-                      String updated, String notes,
-                      HashMap<String, String> fields, String type,
-                      List<Entry> entries) throws Exception {
+              String updated, String notes,
+              HashMap<String, String> fields, String type,
+              List<Entry> entries) throws Exception {
             this(name, description, updated, notes, fields, type);
             this.children = entries;
         }
@@ -328,7 +423,7 @@ public class FileEntriesFragment extends Fragment implements
 
             List<Entry> result = new ArrayList<Entry>();
 
-            for(int i = 0; i < nodeList.getLength(); i++) {
+            for (int i = 0; i < nodeList.getLength(); i++) {
                 Node node = nodeList.item(i);
                 if (node.getNodeType() == Node.ELEMENT_NODE) {
                     result.add(getEntry((Element) node));
@@ -338,7 +433,7 @@ public class FileEntriesFragment extends Fragment implements
         }
 
         private static Entry getEntry(Element elem) throws Exception {
-            String name = "", descr = "", updated = "", notes = "", type="";
+            String name = "", descr = "", updated = "", notes = "", type = "";
             NodeList nameL = elem.getChildNodes();
             type = elem.getAttribute(TYPE_ATTRIBUTE);
 
@@ -346,10 +441,10 @@ public class FileEntriesFragment extends Fragment implements
             List<Entry> children = new ArrayList<Entry>();
 
 
-            for(int i = 0; i < nameL.getLength(); i++) {
+            for (int i = 0; i < nameL.getLength(); i++) {
                 Node item = nameL.item(i);
-                if(item.getNodeName().equals(NAME_ATTRIBUTE))
-                    name =  item.getTextContent();
+                if (item.getNodeName().equals(NAME_ATTRIBUTE))
+                    name = item.getTextContent();
                 else if (item.getNodeName().equals(DESCRIPTION_ATTRIBUTE))
                     descr = item.getTextContent();
                 else if (item.getNodeName().equals(UPDATED_ATTRIBUTE))
@@ -357,16 +452,16 @@ public class FileEntriesFragment extends Fragment implements
                 else if (item.getNodeName().equals(NOTES_ATTRIBUTE))
                     notes = item.getTextContent();
                 else if (item.getNodeName().equals(FIELD_ATTRIBUTE)) {
-                    String fieldName = ( (Element)item).getAttribute(ID_ATTRIBUTE);
+                    String fieldName = ((Element) item).getAttribute(ID_ATTRIBUTE);
                     String value = nameL.item(i).getTextContent();
-                    if(fieldName != null)
+                    if (fieldName != null)
                         attr.put(fieldName, value);
-                } else if(item.getNodeName().equals(ENTRY_NODE_NAME)) {
+                } else if (item.getNodeName().equals(ENTRY_NODE_NAME)) {
                     children.add(getEntry((Element) item));
                 } else
                     ;//throw new Exception("Unknown node type - " + nameL.item(i).getNodeName());
             }
-            if(EntryType.getType(type) == EntryType.folder) {
+            if (EntryType.getType(type) == EntryType.folder) {
                 return new Entry(name, descr, updated, notes, attr, type, children);
             } else {
                 return new Entry(name, descr, updated, notes, attr, type);
@@ -380,7 +475,7 @@ public class FileEntriesFragment extends Fragment implements
         }
 
         String getSecretFieldData() {
-            if(type == EntryType.creditcard)
+            if (type == EntryType.creditcard)
                 return fields.get("generic-pin");
             else if (type == EntryType.door)
                 return fields.get("generic-code");
@@ -402,59 +497,59 @@ public class FileEntriesFragment extends Fragment implements
         }
 
         static String getFieldName(String fieldName, Activity activity) {
-        	if ("generic-name".equals(fieldName)) {
-        		return activity.getString(R.string.name);
-			}
-        	if ("generic-password".equals(fieldName)) {
-        		return activity.getString(R.string.password);
-        	}
-        	if ("generic-email".equals(fieldName)) {
-        		return activity.getString(R.string.email);
-        	}
-        	if ("generic-username".equals(fieldName)) {
-        		return activity.getString(R.string.username);
-        	}
-        	if ("generic-hostname".equals(fieldName)) {
-        		return activity.getString(R.string.hostname);
-        	}
-        	if ("generic-port".equals(fieldName)) {
-        		return activity.getString(R.string.port);
-        	}
-        	if ("generic-location".equals(fieldName)) {
-        		return activity.getString(R.string.location);
-        	}
-        	if ("generic-pin".equals(fieldName)) {
-        		return activity.getString(R.string.pin);
-        	}
-        	if ("generic-database".equals(fieldName)) {
-        		return activity.getString(R.string.database);
-        	}
-        	if ("generic-url".equals(fieldName)) {
-        		return activity.getString(R.string.url);
-        	}
-        	if ("generic-domain".equals(fieldName)) {
-        		return activity.getString(R.string.domain);
-        	}
-        	if ("generic-code".equals(fieldName)) {
-        		return activity.getString(R.string.code);
-        	}
-        	if ("creditcard-cardtype".equals(fieldName)) {
-        		return activity.getString(R.string.cardtype);
-        	}
-        	if ("creditcard-ccv".equals(fieldName)) {
-        		return activity.getString(R.string.ccv);
-        	}
-        	if ("creditcard-expirydate".equals(fieldName)) {
-        		return activity.getString(R.string.expirydate);
-        	}
-        	if ("creditcard-cardnumber".equals(fieldName)) {
-        		return activity.getString(R.string.cardnumber);
-        	}
-        	if ("phone-phonenumber".equals(fieldName)) {
-        		return activity.getString(R.string.phonenumber);
-        	}
-        	
-        	return fieldName;
+            if ("generic-name".equals(fieldName)) {
+                return activity.getString(R.string.name);
+            }
+            if ("generic-password".equals(fieldName)) {
+                return activity.getString(R.string.password);
+            }
+            if ("generic-email".equals(fieldName)) {
+                return activity.getString(R.string.email);
+            }
+            if ("generic-username".equals(fieldName)) {
+                return activity.getString(R.string.username);
+            }
+            if ("generic-hostname".equals(fieldName)) {
+                return activity.getString(R.string.hostname);
+            }
+            if ("generic-port".equals(fieldName)) {
+                return activity.getString(R.string.port);
+            }
+            if ("generic-location".equals(fieldName)) {
+                return activity.getString(R.string.location);
+            }
+            if ("generic-pin".equals(fieldName)) {
+                return activity.getString(R.string.pin);
+            }
+            if ("generic-database".equals(fieldName)) {
+                return activity.getString(R.string.database);
+            }
+            if ("generic-url".equals(fieldName)) {
+                return activity.getString(R.string.url);
+            }
+            if ("generic-domain".equals(fieldName)) {
+                return activity.getString(R.string.domain);
+            }
+            if ("generic-code".equals(fieldName)) {
+                return activity.getString(R.string.code);
+            }
+            if ("creditcard-cardtype".equals(fieldName)) {
+                return activity.getString(R.string.cardtype);
+            }
+            if ("creditcard-ccv".equals(fieldName)) {
+                return activity.getString(R.string.ccv);
+            }
+            if ("creditcard-expirydate".equals(fieldName)) {
+                return activity.getString(R.string.expirydate);
+            }
+            if ("creditcard-cardnumber".equals(fieldName)) {
+                return activity.getString(R.string.cardnumber);
+            }
+            if ("phone-phonenumber".equals(fieldName)) {
+                return activity.getString(R.string.phonenumber);
+            }
+
+            return fieldName;
         }
     }
 
@@ -476,11 +571,11 @@ public class FileEntriesFragment extends Fragment implements
         nonreal;
 
         static EntryType getType(String type) throws Exception {
-            if(type.equals(EntryType.folder.toString()))
+            if (type.equals(EntryType.folder.toString()))
                 return EntryType.folder;
-            if(type.equals(EntryType.creditcard.toString()))
+            if (type.equals(EntryType.creditcard.toString()))
                 return EntryType.creditcard;
-            else if(type.equals(EntryType.cryptokey.toString()))
+            else if (type.equals(EntryType.cryptokey.toString()))
                 return EntryType.cryptokey;
             else if (type.equals(EntryType.database.toString()))
                 return EntryType.database;
@@ -528,7 +623,7 @@ public class FileEntriesFragment extends Fragment implements
 
         static CharSequence[] getCharSequences() {
             CharSequence[] result = new CharSequence[values().length];
-            for(int i = 0; i < values().length; i++) {
+            for (int i = 0; i < values().length; i++) {
                 result[i] = values()[i].toString();
             }
             return result;
@@ -538,9 +633,11 @@ public class FileEntriesFragment extends Fragment implements
 
     @Override
     public void onBackPressed() {
-        if(entryArrayAdapter.getCount() > 0 && entryArrayAdapter.getItem(0).type == EntryType.nonreal)
-            lv.performItemClick(null, 0, 0);
-        else
+        if (entryArrayAdapter.getCount() > 0 && entryArrayAdapter.getItem(0).type == EntryType
+                .nonreal)
+            getListView().performItemClick(null, 0, 0);
+        else {
             getFragmentManager().popBackStack();
+        }
     }
 }

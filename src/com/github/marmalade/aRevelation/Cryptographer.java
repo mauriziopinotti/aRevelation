@@ -113,7 +113,6 @@ public class Cryptographer {
             bos.write(buf, 0, count);
         }
         bos.close();
-        String outString = new String(bos.toByteArray());
         return bos.toByteArray();
     }
 
