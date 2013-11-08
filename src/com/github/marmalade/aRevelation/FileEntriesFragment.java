@@ -98,14 +98,8 @@ public class FileEntriesFragment extends ListFragment implements
 
     ;
 
-    public static FileEntriesFragment newInstance(String path) {
+    public static FileEntriesFragment newInstance() {
         FileEntriesFragment fragment = new FileEntriesFragment();
-
-        if (!TextUtils.isEmpty(path)) {
-            Bundle bundle = new Bundle();
-            bundle.putParcelable(FILE, Uri.fromFile(new File(path)));
-            fragment.setArguments(bundle);
-        }
 
         return fragment;
     }
@@ -115,11 +109,7 @@ public class FileEntriesFragment extends ListFragment implements
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        Bundle arguments = getArguments();
-        if (arguments != null) {
-            mUri = arguments.getParcelable(FILE);
-            isBlocked = arguments.getBoolean(BLOCKED);
-        }
+        mUri = getActivity().getIntent().getData();
 
         if (savedInstanceState != null) {
             Log.w("aRevelation", "savedInstanceState");
