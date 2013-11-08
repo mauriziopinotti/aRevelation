@@ -17,7 +17,7 @@
  * You should have received a copy of the GNU General Public License
  * along with aRevelation.  If not, see <http://www.gnu.org/licenses/>.
  */
-package com.github.marmalade.aRevelation;
+package com.github.marmalade.aRevelation.ui.fragment;
 
 import android.app.AlertDialog;
 import android.app.ListFragment;
@@ -29,14 +29,13 @@ import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 
+import com.github.marmalade.aRevelation.IBackPressedListener;
+import com.github.marmalade.aRevelation.R;
 import com.github.marmalade.aRevelation.ui.FileActivity;
 
 import java.io.File;
-import java.io.RandomAccessFile;
 import java.util.ArrayList;
 import java.util.Arrays;
-
-import javax.crypto.BadPaddingException;
 
 /**
  * Author: <a href="mailto:alexey.kislin@gmail.com">Alexey Kislin</a>
@@ -78,7 +77,6 @@ public class OpenFileFragment extends ListFragment implements IBackPressedListen
             if (mPath == null) {
                 mPath = DEFAULT_PATH;
             }
-
         } else {
             mPath = savedInstanceState.getString(PATH);
         }
@@ -87,6 +85,12 @@ public class OpenFileFragment extends ListFragment implements IBackPressedListen
                 android.R.layout.simple_list_item_1, mFilesBrowserItems);
 
         setListAdapter(mFilesBrowserAdapter);
+    }
+
+    @Override
+    public void onActivityCreated(Bundle savedInstanceState) {
+        super.onActivityCreated(savedInstanceState);
+
         setLocation(new FileWrapper(mPath));
     }
 
@@ -109,7 +113,8 @@ public class OpenFileFragment extends ListFragment implements IBackPressedListen
             mFilesBrowserItems.add(new FileWrapper(childFile));
         }
         mFilesBrowserAdapter.notifyDataSetChanged();
-//        lv.setSelection(0);         // Go to the top
+
+        getListView().setSelection(0);         // Go to the top
     }
 
 
@@ -121,63 +126,13 @@ public class OpenFileFragment extends ListFragment implements IBackPressedListen
                 .setPositiveButton(android.R.string.yes, new OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
-                        Intent intent = new Intent(getActivity().getApplicationContext(), FileActivity.class);
+                        Intent intent = new Intent(getActivity().getApplicationContext(),
+                                FileActivity.class);
                         intent.putExtra(FileActivity.PATH, file.getAbsolutePath());
                         startActivity(intent);
-
-//                        askPassword(file);
                     }
                 })
                 .show();
-    }
-
-    private void askPassword(final File file) {
-        final AskPasswordDialogFragment d = new AskPasswordDialogFragment();
-
-        AskPasswordDialogFragment.AskPasswordOnClickListener dialogClickListener = d.new
-                AskPasswordOnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        switch (which) {
-                            case DialogInterface.BUTTON_POSITIVE:
-                                tryToOpenFile(file, d.editText.getEditableText().toString
-                                        ());
-                                break;
-
-                            case DialogInterface.BUTTON_NEGATIVE:
-                                // Nothing to do
-                                break;
-                        }
-                    }
-                };
-
-        d.setOnClickListener(dialogClickListener);
-        d.show(getFragmentManager(), null);
-    }
-
-
-    private void tryToOpenFile(File file, String password) {
-        try {
-            RandomAccessFile f = new RandomAccessFile(file.getAbsoluteFile(), "r");
-            byte[] fileData = new byte[(int) f.length()];
-            f.read(fileData);
-            String decryptedXML = Cryptographer.decrypt(fileData, password);
-
-//            Intent intent = new Intent(getActivity().getApplicationContext(), FileActivity.class);
-//            intent.putExtra(FileActivity.DECRYPTED_DATA, decryptedXML);
-//            intent.putExtra(FileActivity.PASSWORD, password);
-//            startActivity(intent);
-        } catch (BadPaddingException e) {
-            AlertDialog.Builder builder = new AlertDialog.Builder(this.getActivity());
-            builder.setTitle("Error")
-                    .setMessage("Invalid password");
-            builder.show();
-        } catch (Exception e) {
-            AlertDialog.Builder builder = new AlertDialog.Builder(this.getActivity());
-            builder.setTitle("Error")
-                    .setMessage(e.getMessage());
-            builder.show();
-        }
     }
 
     @Override
@@ -230,9 +185,10 @@ public class OpenFileFragment extends ListFragment implements IBackPressedListen
 
     @Override
     public void onBackPressed() {
-        if (mFilesBrowserItems.get(0).isBackElement)
+        if (mFilesBrowserItems.get(0).isBackElement()) {
             setLocation(mFilesBrowserItems.get(0));
-        else
+        } else {
             getFragmentManager().popBackStack();
+        }
     }
 }
