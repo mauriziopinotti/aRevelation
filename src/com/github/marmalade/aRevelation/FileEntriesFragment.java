@@ -30,7 +30,6 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
-import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
@@ -46,10 +45,8 @@ import org.w3c.dom.NodeList;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.RandomAccessFile;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -66,6 +63,10 @@ import javax.xml.parsers.DocumentBuilderFactory;
  */
 public class FileEntriesFragment extends ListFragment implements
         AdapterView.OnItemLongClickListener, IBackPressedListener {
+
+    public static interface ReadFileCallback {
+        public void readFile(Uri uri, String password);
+    }
 
     final static String REVELATION_XML_NODE_NAME = "revelationdata";
     final static String ENTRY_NODE_NAME = "entry";
@@ -118,33 +119,37 @@ public class FileEntriesFragment extends ListFragment implements
             top = savedInstanceState.getInt(TOP);
             Log.w("aRevelation", String.valueOf(isBlocked));
         } else {
-            askPassword(mUri);
+            askPassword();
         }
 
-        entries = new ArrayList<Entry>();
-        entryArrayAdapter = new ArrayAdapter<Entry>(getActivity(), android.R.layout.simple_list_item_1, entries);
+        entries = new ArrayList<>();
+        entryArrayAdapter = new ArrayAdapter<>(getActivity(), android.R.layout.simple_list_item_1, entries);
         setListAdapter(entryArrayAdapter);
     }
 
-    private void askPassword(final Uri path) {
+    private void askPassword() {
         final AskPasswordDialogFragment d = new AskPasswordDialogFragment();
 
         AskPasswordDialogFragment.AskPasswordOnClickListener dialogClickListener = d.new
                 AskPasswordOnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
-                        switch (which) {
-                            case DialogInterface.BUTTON_POSITIVE:
-                                tryToOpenFile(d.editText.getEditableText().toString
-                                        ());
-                                break;
+                        Activity activity = getActivity();
+                        if (activity != null) {
+                            switch (which) {
+                                case DialogInterface.BUTTON_POSITIVE:
+                                    if (activity instanceof ReadFileCallback) {
+                                        ((ReadFileCallback) activity).readFile(mUri, d.editText.getEditableText().toString());
+                                        setListShown(false);
+                                    }
+                                    break;
+                                case DialogInterface.BUTTON_NEGATIVE:
+                                    if (activity != null) {
+                                        activity.finish();
+                                    }
+                                    break;
+                            }
 
-                            case DialogInterface.BUTTON_NEGATIVE:
-                                Activity activity = getActivity();
-                                if (activity != null) {
-                                    activity.finish();
-                                }
-                                break;
                         }
                     }
                 };
@@ -372,6 +377,13 @@ public class FileEntriesFragment extends ListFragment implements
         entryArrayAdapter = new ArrayAdapter<Entry>(activity, android.R.layout.simple_list_item_1, entries);
         setListAdapter(entryArrayAdapter);
         entryArrayAdapter.notifyDataSetChanged();
+    }
+
+    public void setEntries(List<Entry> entries) {
+        setListShown(true);
+
+        this.entries = entries;
+        updateEntries();
     }
 
     public static class Entry implements Serializable {

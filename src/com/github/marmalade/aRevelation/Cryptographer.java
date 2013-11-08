@@ -76,6 +76,7 @@ public class Cryptographer {
                 cypher.init(Cipher.DECRYPT_MODE, k, new IvParameterSpec(iv));
 
                 byte[] input = Arrays.copyOfRange(fileData, 36, (int)fileData.length);
+                //TODO wrap in try-catch and throw wrongpassword exception
                 byte[] compressedData = cypher.doFinal(input);
 
                 MessageDigest md = MessageDigest.getInstance("SHA-256");
