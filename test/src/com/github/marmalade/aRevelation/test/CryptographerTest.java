@@ -79,7 +79,7 @@ public class CryptographerTest extends TestCase {
             String xml = readFileAsString(DECRYPTED_DATA_FILE_4_14);
 
             byte[] encrypted = Cryptographer.encrypt(xml, "test");
-            String decrypt = Cryptographer.decrypt(encrypted, "text");
+            String decrypt = Cryptographer.decrypt(encrypted, "test");
             assertEquals(xml, decrypt);
 
         } catch (Exception e) {
