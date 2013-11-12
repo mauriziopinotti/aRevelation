@@ -49,4 +49,9 @@ along with aRevelation.  If not, see <http://www.gnu.org/licenses/>.
     <string name="ccv">CCV</string>
     <string name="open_file_message">Do you want to open %1$s?</string>
     <string name="open_file_title">Open file</string>
+    <string name="unexpected_error">Unexpected error occured</string>
+    <string name="error_title">Error</string>
+    <string name="invalid_data_error">Invalid data</string>
+    <string name="wrong_password_error">Wrong password</string>
+    <string name="unsupported_file_format_exception">Unsupported file format</string>
 </resources>
