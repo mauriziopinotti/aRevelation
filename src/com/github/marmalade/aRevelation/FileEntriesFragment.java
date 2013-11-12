@@ -36,18 +36,23 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 
+import com.github.marmalade.aRevelation.exception.InvalidDataException;
+import com.github.marmalade.aRevelation.exception.MissingDecryptorException;
+import com.github.marmalade.aRevelation.exception.UnknownEntryTypeException;
 import com.github.marmalade.aRevelation.ui.EntryActivity;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
+import org.xml.sax.SAXException;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.Serializable;
+import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -55,6 +60,7 @@ import java.util.List;
 import javax.crypto.BadPaddingException;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
 
 /**
  * Author: <a href="mailto:alexey.kislin@gmail.com">Alexey Kislin</a>
@@ -156,55 +162,6 @@ public class FileEntriesFragment extends ListFragment implements
 
         d.setOnClickListener(dialogClickListener);
         d.show(getFragmentManager(), null);
-    }
-
-    private void tryToOpenFile(String password) {
-        InputStream inputStream = null;
-        ByteArrayOutputStream bos = null;
-        try {
-            inputStream = getActivity().getContentResolver().openInputStream(mUri);
-            bos = new ByteArrayOutputStream();
-            byte[] buffer = new byte[1024];
-            int bytesRead;
-            while ((bytesRead = inputStream.read(buffer)) != -1) {
-                bos.write(buffer, 0, bytesRead);
-            }
-
-            String decryptedXML = Cryptographer.decrypt(bos.toByteArray(), password);
-            entries = Entry.parseDecryptedXml(decryptedXML);
-            updateEntries();
-
-//            Intent intent = new Intent(getActivity().getApplicationContext(), FileActivity.class);
-//            intent.putExtra(FileActivity.DECRYPTED_DATA, decryptedXML);
-//            intent.putExtra(FileActivity.PASSWORD, password);
-//            startActivity(intent);
-        } catch (BadPaddingException e) {
-            AlertDialog.Builder builder = new AlertDialog.Builder(this.getActivity());
-            builder.setTitle("Error")
-                    .setMessage("Invalid password");
-            builder.show();
-        } catch (Exception e) {
-            AlertDialog.Builder builder = new AlertDialog.Builder(this.getActivity());
-            builder.setTitle("Error")
-                    .setMessage(e.getMessage());
-            builder.show();
-        } finally {
-            if (bos != null) {
-                try {
-                    bos.close();
-                } catch (IOException e) {
-                    //do nothing
-                }
-            }
-
-            if (inputStream != null) {
-                try {
-                    inputStream.close();
-                } catch (IOException e) {
-                    //do nothing
-                }
-            }
-        }
     }
 
     @Override
@@ -395,7 +352,7 @@ public class FileEntriesFragment extends ListFragment implements
 
         private Entry(String name, String description,
                       String updated, String notes,
-                      HashMap<String, String> fields, String type) throws Exception {
+                      HashMap<String, String> fields, String type) throws UnknownEntryTypeException {
             this.name = name;
             this.description = description;
             this.updated = updated;
@@ -407,16 +364,21 @@ public class FileEntriesFragment extends ListFragment implements
         Entry(String name, String description,
               String updated, String notes,
               HashMap<String, String> fields, String type,
-              List<Entry> entries) throws Exception {
+              List<Entry> entries) throws UnknownEntryTypeException {
             this(name, description, updated, notes, fields, type);
             this.children = entries;
         }
 
-        public static List<Entry> parseDecryptedXml(String rvlXml)
-                throws Exception {
+        public static List<Entry> parseDecryptedXml(String rvlXml) throws MissingDecryptorException, InvalidDataException {
             DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
-            DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
-            Document doc = dBuilder.parse(new ByteArrayInputStream(rvlXml.getBytes("UTF-8")));
+            DocumentBuilder dBuilder = null;
+            Document doc;
+            try {
+                dBuilder = dbFactory.newDocumentBuilder();
+                doc = dBuilder.parse(new ByteArrayInputStream(rvlXml.getBytes("UTF-8")));
+            } catch (ParserConfigurationException | SAXException | IOException e) {
+                throw new MissingDecryptorException();
+            }
 
             doc.getDocumentElement().normalize();
             Element rvlXML = doc.getDocumentElement();
@@ -428,13 +390,17 @@ public class FileEntriesFragment extends ListFragment implements
             for (int i = 0; i < nodeList.getLength(); i++) {
                 Node node = nodeList.item(i);
                 if (node.getNodeType() == Node.ELEMENT_NODE) {
-                    result.add(getEntry((Element) node));
+                    try {
+                        result.add(getEntry((Element) node));
+                    } catch (UnknownEntryTypeException e) {
+                        throw new InvalidDataException();
+                    }
                 }
             }
             return result;
         }
 
-        private static Entry getEntry(Element elem) throws Exception {
+        private static Entry getEntry(Element elem) throws UnknownEntryTypeException {
             String name = "", descr = "", updated = "", notes = "", type = "";
             NodeList nameL = elem.getChildNodes();
             type = elem.getAttribute(TYPE_ATTRIBUTE);
@@ -572,7 +538,7 @@ public class FileEntriesFragment extends ListFragment implements
         phone,
         nonreal;
 
-        static EntryType getType(String type) throws Exception {
+        static EntryType getType(String type) throws UnknownEntryTypeException {
             if (type.equals(EntryType.folder.toString()))
                 return EntryType.folder;
             if (type.equals(EntryType.creditcard.toString()))
@@ -601,7 +567,7 @@ public class FileEntriesFragment extends ListFragment implements
                 return EntryType.website;
             else if (type.equals(EntryType.nonreal.toString()))
                 return EntryType.nonreal;
-            else throw new Exception("Unknown type of entry - " + type);
+            else throw new UnknownEntryTypeException(type);
         }
 
     }

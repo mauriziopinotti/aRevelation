@@ -1,7 +1,6 @@
 package com.github.marmalade.aRevelation.ui.fragment;
 
 import android.app.Activity;
-import android.app.AlertDialog;
 import android.app.Fragment;
 import android.content.Context;
 import android.net.Uri;
@@ -11,29 +10,31 @@ import android.os.Bundle;
 
 import com.github.marmalade.aRevelation.Cryptographer;
 import com.github.marmalade.aRevelation.FileEntriesFragment.Entry;
+import com.github.marmalade.aRevelation.R;
+import com.github.marmalade.aRevelation.exception.ARevelationException;
+import com.github.marmalade.aRevelation.exception.InvalidDataException;
+import com.github.marmalade.aRevelation.exception.MissingDecryptorException;
+import com.github.marmalade.aRevelation.exception.UnknownFileFormatException;
+import com.github.marmalade.aRevelation.exception.WrongPasswordException;
 
 import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
-import java.math.MathContext;
 import java.util.List;
-
-import javax.crypto.BadPaddingException;
 
 /**
  * Created by sviro on 11/8/13.
  */
-public class FileOpenFragment extends Fragment {
+public class FileOpenRetainFragment extends Fragment {
 
-    public static FileOpenFragment newInstance() {
-        return new FileOpenFragment();
+    public static FileOpenRetainFragment newInstance() {
+        return new FileOpenRetainFragment();
     }
 
     public static interface OnReadFileListener {
         public void onFileRead(List<Entry> entries);
-        public void onFileReadFail();
+
+        public void onFileReadFail(String error);
     }
 
     private ReadFileTask mTask;
@@ -59,7 +60,7 @@ public class FileOpenFragment extends Fragment {
         }
 
         if (mListener != null) {
-            mListener.onFileReadFail();
+            mListener.onFileReadFail(getString(R.string.unexpected_error));
         }
     }
 
@@ -70,7 +71,8 @@ public class FileOpenFragment extends Fragment {
         try {
             mListener = (OnReadFileListener) activity;
         } catch (ClassCastException e) {
-            throw new IllegalStateException("Activity " + activity + " must implement OnReadFileListener", e);
+            throw new IllegalStateException("Activity " + activity + " must implement " +
+                    "OnReadFileListener", e);
         }
     }
 
@@ -81,7 +83,9 @@ public class FileOpenFragment extends Fragment {
         mListener = null;
     }
 
-    private static List<Entry> tryToOpenFile(Context context, FileEntry fileEntry) throws Exception {
+    private static List<Entry> tryToOpenFile(Context context, FileEntry fileEntry) throws
+            WrongPasswordException, InvalidDataException, UnknownFileFormatException,
+            MissingDecryptorException {
         InputStream inputStream = null;
         ByteArrayOutputStream bos = null;
         try {
@@ -95,6 +99,8 @@ public class FileOpenFragment extends Fragment {
 
             String decryptedXML = Cryptographer.decrypt(bos.toByteArray(), fileEntry.getPassword());
             return Entry.parseDecryptedXml(decryptedXML);
+        } catch (IOException e) {
+            return null;
         } finally {
             if (bos != null) {
                 try {
@@ -117,6 +123,7 @@ public class FileOpenFragment extends Fragment {
     private class ReadFileTask extends AsyncTask<FileEntry, Void, List<Entry>> {
 
         private final Context mContext;
+        private ARevelationException mException;
 
         private ReadFileTask(Context context) {
             mContext = context;
@@ -128,8 +135,9 @@ public class FileOpenFragment extends Fragment {
             if (fileEntry != null) {
                 try {
                     return tryToOpenFile(mContext, fileEntry);
-                } catch (Exception e) {
-                    //TODO handle
+                } catch (WrongPasswordException | MissingDecryptorException |
+                        UnknownFileFormatException | InvalidDataException e) {
+                    mException = e;
                 }
             }
 
@@ -142,7 +150,15 @@ public class FileOpenFragment extends Fragment {
                 if (entries != null) {
                     mListener.onFileRead(entries);
                 } else {
-                    mListener.onFileReadFail();
+                    String errorMessage;
+
+                    if (mException != null) {
+                        errorMessage = mException.getErrorMessage(getActivity());
+                    } else {
+                        errorMessage = getString(R.string.unexpected_error);
+                    }
+
+                    mListener.onFileReadFail(errorMessage);
                 }
 
             }
@@ -153,7 +169,6 @@ public class FileOpenFragment extends Fragment {
 
         private Uri uri;
         private String password;
-        private int error;
 
         private FileEntry(Uri uri, String password) {
             this.uri = uri;
