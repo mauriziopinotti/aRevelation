@@ -21,13 +21,12 @@ package com.github.marmalade.aRevelation.test;
 
 import com.github.marmalade.aRevelation.Cryptographer;
 
-import com.github.marmalade.aRevelation.FileEntriesFragment;
+import com.github.marmalade.aRevelation.io.Entry;
+
 import junit.framework.TestCase;
 import org.junit.Test;
 
 import java.io.*;
-import java.util.ArrayList;
-import java.util.Arrays;
 
 /**
  * Author: <a href="mailto:alexey.kislin@gmail.com">Alexey Kislin</a>
@@ -65,9 +64,8 @@ public class CryptographerTest extends TestCase {
             input.read(fileData);
             input.close();
             String inputData = new String(fileData, "UTF-8");
-            FileEntriesFragment.Entry.parseDecryptedXml(inputData);
+            Entry.parseDecryptedXml(inputData);
         } catch (Exception e) {
-            e.printStackTrace();
             assert(false);
         }
     }

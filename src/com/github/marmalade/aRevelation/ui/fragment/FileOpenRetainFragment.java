@@ -7,9 +7,10 @@ import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.AsyncTask.Status;
 import android.os.Bundle;
+import android.util.Log;
 
 import com.github.marmalade.aRevelation.Cryptographer;
-import com.github.marmalade.aRevelation.FileEntriesFragment.Entry;
+import com.github.marmalade.aRevelation.io.Entry;
 import com.github.marmalade.aRevelation.R;
 import com.github.marmalade.aRevelation.exception.ARevelationException;
 import com.github.marmalade.aRevelation.exception.InvalidDataException;
@@ -100,6 +101,9 @@ public class FileOpenRetainFragment extends Fragment {
             String decryptedXML = Cryptographer.decrypt(bos.toByteArray(), fileEntry.getPassword());
             return Entry.parseDecryptedXml(decryptedXML);
         } catch (IOException e) {
+            return null;
+        } catch (Exception e) {
+            Log.e("XML parse", "parse error", e);
             return null;
         } finally {
             if (bos != null) {

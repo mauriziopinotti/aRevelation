@@ -10,6 +10,8 @@
         
     <uses-sdk android:minSdkVersion="14" android:targetSdkVersion="19"/>
 
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
+
     <application
             android:icon="@drawable/icon"
             android:label="aRevelation"

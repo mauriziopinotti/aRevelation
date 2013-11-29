@@ -6,7 +6,7 @@ import android.content.Intent;
 import android.os.Bundle;
 
 import com.github.marmalade.aRevelation.EntryFragment;
-import com.github.marmalade.aRevelation.FileEntriesFragment.Entry;
+import com.github.marmalade.aRevelation.io.Entry;
 import com.github.marmalade.aRevelation.R;
 
 /**

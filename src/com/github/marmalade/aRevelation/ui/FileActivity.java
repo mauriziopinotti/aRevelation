@@ -7,7 +7,7 @@ import android.net.Uri;
 import android.os.Bundle;
 
 import com.github.marmalade.aRevelation.FileEntriesFragment;
-import com.github.marmalade.aRevelation.FileEntriesFragment.Entry;
+import com.github.marmalade.aRevelation.io.Entry;
 import com.github.marmalade.aRevelation.FileEntriesFragment.ReadFileCallback;
 import com.github.marmalade.aRevelation.R;
 import com.github.marmalade.aRevelation.ui.fragment.ErrorDialogFragment;

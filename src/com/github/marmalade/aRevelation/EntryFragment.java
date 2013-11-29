@@ -33,6 +33,9 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.*;
 
+import com.github.marmalade.aRevelation.io.Entry;
+import com.github.marmalade.aRevelation.io.Field;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -54,7 +57,7 @@ public class EntryFragment extends Fragment implements AdapterView.OnItemClickLi
     private ListView lv;
 
     private Activity activity;
-    private FileEntriesFragment.Entry entry;
+    private Entry entry;
     private String password;
     private boolean isBlocked;
     HashMap<String, String> values;
@@ -68,7 +71,7 @@ public class EntryFragment extends Fragment implements AdapterView.OnItemClickLi
     public EntryFragment() {};
 
 
-    public EntryFragment(FileEntriesFragment.Entry entry, String password) {
+    public EntryFragment(Entry entry, String password) {
         this.entry = entry;
         this.password = password;
     }
@@ -84,7 +87,7 @@ public class EntryFragment extends Fragment implements AdapterView.OnItemClickLi
     public void onCreate(Bundle savedInstanceState) {
         if(savedInstanceState != null) {
             password = savedInstanceState.getString(PASSWORD);
-            entry = (FileEntriesFragment.Entry) savedInstanceState.getSerializable(ENTRY);
+            entry = (Entry) savedInstanceState.getSerializable(ENTRY);
             isBlocked = savedInstanceState.getBoolean(BLOCKED);
         }
         activity = getActivity();
@@ -152,31 +155,32 @@ public class EntryFragment extends Fragment implements AdapterView.OnItemClickLi
     }
 
 
-    private void showRevelationEntry(FileEntriesFragment.Entry entry, Activity activity) {
+    private void showRevelationEntry(Entry entry, Activity activity) {
         lv.setOnItemClickListener(this);
         lv.setOnItemLongClickListener(this);
         data = new ArrayList<Map<String, String>>();
         values = new HashMap<String, String>();
         values.put(ROW_HEADER_IDENTIFIER, activity.getString(R.string.name));
-        values.put(ROW_DATA_IDENTIFIER, entry.name);
+        values.put(ROW_DATA_IDENTIFIER, entry.getName());
         data.add(values);
         values = new HashMap<String, String>();
         values.put(ROW_HEADER_IDENTIFIER, activity.getString(R.string.description));
-        values.put(ROW_DATA_IDENTIFIER, entry.description);
+        values.put(ROW_DATA_IDENTIFIER, entry.getDescription());
         data.add(values);
-        for(String key : entry.fields.keySet()) {
+        for (Field field : entry.getFields()) {
             values = new HashMap<String, String>();
-            values.put(ROW_HEADER_IDENTIFIER, FileEntriesFragment.Entry.getFieldName(key, activity));
-            values.put(ROW_DATA_IDENTIFIER, entry.fields.get(key));
+            values.put(ROW_HEADER_IDENTIFIER, Entry.getFieldName(field.getFieldName(), activity));
+            values.put(ROW_DATA_IDENTIFIER, field.getValue());
             data.add(values);
         }
+
         values = new HashMap<String, String>();
         values.put(ROW_HEADER_IDENTIFIER, activity.getString(R.string.notes));
-        values.put(ROW_DATA_IDENTIFIER, entry.notes);
+        values.put(ROW_DATA_IDENTIFIER, entry.getNotes());
         data.add(values);
         values = new HashMap<String, String>();
         values.put(ROW_HEADER_IDENTIFIER, "Updated");
-        values.put(ROW_DATA_IDENTIFIER, entry.updated);
+        values.put(ROW_DATA_IDENTIFIER, entry.getUpdated());
         data.add(values);
 
         adapter = new SimpleAdapter(activity, data,
