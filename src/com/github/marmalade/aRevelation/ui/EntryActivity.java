@@ -28,7 +28,7 @@ public class EntryActivity extends Activity {
         Entry entry = null;
         Intent intent = getIntent();
         if (intent != null) {
-            entry = (Entry) intent.getSerializableExtra(ENTRY);
+            entry = intent.getParcelableExtra(ENTRY);
             password = intent.getStringExtra(PASSWORD);
         }
 

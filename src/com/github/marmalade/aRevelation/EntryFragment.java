@@ -87,7 +87,7 @@ public class EntryFragment extends Fragment implements AdapterView.OnItemClickLi
     public void onCreate(Bundle savedInstanceState) {
         if(savedInstanceState != null) {
             password = savedInstanceState.getString(PASSWORD);
-            entry = (Entry) savedInstanceState.getSerializable(ENTRY);
+            entry = savedInstanceState.getParcelable(ENTRY);
             isBlocked = savedInstanceState.getBoolean(BLOCKED);
         }
         activity = getActivity();
@@ -110,7 +110,7 @@ public class EntryFragment extends Fragment implements AdapterView.OnItemClickLi
     public void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
         outState.putString(PASSWORD, password);
-        outState.putSerializable(ENTRY, entry);
+        outState.putParcelable(ENTRY, entry);
         blockAccess();
         outState.putBoolean(BLOCKED, isBlocked);
     }

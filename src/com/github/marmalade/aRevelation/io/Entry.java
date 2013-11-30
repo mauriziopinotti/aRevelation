@@ -1,6 +1,8 @@
 package com.github.marmalade.aRevelation.io;
 
 import android.app.Activity;
+import android.os.Parcel;
+import android.os.Parcelable;
 
 import com.github.marmalade.aRevelation.R;
 import com.github.marmalade.aRevelation.exception.UnknownEntryTypeException;
@@ -14,12 +16,13 @@ import org.simpleframework.xml.transform.Matcher;
 import org.simpleframework.xml.transform.Transform;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
 * Created by sviro on 11/25/13.
 */
-public class Entry implements Serializable {
+public class Entry implements Parcelable {
     @Attribute
     EntryType type;
     @Element
@@ -59,6 +62,18 @@ public class Entry implements Serializable {
                  List<Entry> entries) throws UnknownEntryTypeException {
         this(name, description, updated, notes, fields, type);
         this.children = entries;
+    }
+
+    public Entry(Parcel in) {
+        type = in.readParcelable(EntryType.class.getClassLoader());
+        name = in.readString();
+        description = in.readString();
+        updated = in.readString();
+        notes = in.readString();
+        fields = new ArrayList<>();
+        in.readTypedList(fields, Field.CREATOR);
+        children = new ArrayList<>();
+        in.readTypedList(children, Entry.CREATOR);
     }
 
     public static List<Entry> parseDecryptedXml(String rvlXml) throws Exception {
@@ -180,7 +195,34 @@ public class Entry implements Serializable {
         return fieldName;
     }
 
-    public static class EntryType {
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel out, int flags) {
+        out.writeParcelable(type, 0);
+        out.writeString(name);
+        out.writeString(description);
+        out.writeString(updated);
+        out.writeString(notes);
+        out.writeTypedList(fields);
+        out.writeTypedList(children);
+    }
+
+    public static final Parcelable.Creator<Entry> CREATOR
+            = new Parcelable.Creator<Entry>() {
+        public Entry createFromParcel(Parcel in) {
+            return new Entry(in);
+        }
+
+        public Entry[] newArray(int size) {
+            return new Entry[size];
+        }
+    };
+
+    public static class EntryType implements Parcelable {
 
         private static final String FOLDER = "folder";
         private static final String CREDIT_CARD = "creditcard";
@@ -214,6 +256,10 @@ public class Entry implements Serializable {
 
 
         private int type;
+
+        public EntryType(Parcel in) {
+            type = in.readInt();
+        }
 
         public static EntryType fromString(String value) throws UnknownEntryTypeException {
             int type;
@@ -311,6 +357,27 @@ public class Entry implements Serializable {
                     return null;
             }
         }
+
+        @Override
+        public int describeContents() {
+            return 0;
+        }
+
+        @Override
+        public void writeToParcel(Parcel out, int flags) {
+            out.writeInt(type);
+        }
+
+        public static final Parcelable.Creator<EntryType> CREATOR
+                = new Parcelable.Creator<EntryType>() {
+            public EntryType createFromParcel(Parcel in) {
+                return new EntryType(in);
+            }
+
+            public EntryType[] newArray(int size) {
+                return new EntryType[size];
+            }
+        };
     }
 
     private static class EntryTypeMatcher implements Matcher {
