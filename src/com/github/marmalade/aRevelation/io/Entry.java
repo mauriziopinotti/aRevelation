@@ -1,27 +1,26 @@
 package com.github.marmalade.aRevelation.io;
 
-import android.app.Activity;
 import android.os.Parcel;
 import android.os.Parcelable;
+import android.text.TextUtils;
 
-import com.github.marmalade.aRevelation.R;
 import com.github.marmalade.aRevelation.exception.UnknownEntryTypeException;
 
 import org.simpleframework.xml.Attribute;
 import org.simpleframework.xml.Element;
 import org.simpleframework.xml.ElementList;
 import org.simpleframework.xml.Serializer;
+import org.simpleframework.xml.core.Commit;
 import org.simpleframework.xml.core.Persister;
 import org.simpleframework.xml.transform.Matcher;
 import org.simpleframework.xml.transform.Transform;
 
-import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
 /**
-* Created by sviro on 11/25/13.
-*/
+ * Created by sviro on 11/25/13.
+ */
 public class Entry implements Parcelable {
     @Attribute
     EntryType type;
@@ -33,13 +32,11 @@ public class Entry implements Parcelable {
     String updated;
     @Element(required = false)
     String notes;
-
     @ElementList(entry = "field", inline = true)
     List<Field> fields;
-
-
     //TODO parse folder type
     List<Entry> children;
+    Field secretFieldData;
 
     public Entry() {
 
@@ -54,6 +51,7 @@ public class Entry implements Parcelable {
         this.notes = notes;
         this.fields = fields;
         this.type = new EntryType(type);
+        buildSecretFieldData();
     }
 
     public Entry(String name, String description,
@@ -74,6 +72,7 @@ public class Entry implements Parcelable {
         in.readTypedList(fields, Field.CREATOR);
         children = new ArrayList<>();
         in.readTypedList(children, Entry.CREATOR);
+        secretFieldData = in.readParcelable(Field.class.getClassLoader());
     }
 
     public static List<Entry> parseDecryptedXml(String rvlXml) throws Exception {
@@ -83,6 +82,45 @@ public class Entry implements Parcelable {
 
         return revelationData.getEntries();
     }
+
+    @Commit
+    public void buildSecretFieldData() {
+        if (type != null) {
+            int entryType = type.getType();
+            if (entryType == EntryType.TYPE_CREDIT_CARD) {
+                secretFieldData = getField(Field.PIN);
+            } else if (entryType == EntryType.TYPE_DOOR) {
+                secretFieldData = getField(Field.CODE);
+            } else if (entryType == EntryType.TYPE_PHONE) {
+                secretFieldData = getField(Field.PIN);
+            } else if (
+                    entryType == EntryType.TYPE_DATABASE
+                            || entryType == EntryType.TYPE_CRYPTO_KEY
+                            || entryType == EntryType.TYPE_EMAIL
+                            || entryType == EntryType.TYPE_GENERIC
+                            || entryType == EntryType.TYPE_FTP
+                            || entryType == EntryType.TYPE_REMOTE_DESKTOP
+                            || entryType == EntryType.TYPE_SHELL
+                            || entryType == EntryType.TYPE_VNC
+                            || entryType == EntryType.TYPE_WEBSITE) {
+                secretFieldData = getField(Field.PASSWORD);
+            }
+        }
+
+    }
+
+    private Field getField(String fieldName) {
+        if (!TextUtils.isEmpty(fieldName)) {
+            for (Field field : fields) {
+                if (fieldName.equals(field.getFieldName())) {
+                    return field;
+                }
+            }
+        }
+
+        return null;
+    }
+
 
     public int getType() {
         return type.getType();
@@ -112,87 +150,17 @@ public class Entry implements Parcelable {
         return children;
     }
 
+    public String getSecretFieldData() {
+        if (secretFieldData != null) {
+            return secretFieldData.getValue();
+        }
+
+        return null;
+    }
+
     @Override
     public String toString() {
         return name;
-    }
-
-    public String getSecretFieldData() {
-//        if (entryType == EntryType.creditcard)
-//            return fields.get("generic-pin");
-//        else if (entryType == EntryType.door)
-//            return fields.get("generic-code");
-//        else if (entryType == EntryType.phone)
-//            return fields.get("generic-pin");
-//        else if (
-//                entryType == EntryType.database
-//                        || entryType == EntryType.cryptokey
-//                        || entryType == EntryType.email
-//                        || entryType == EntryType.generic
-//                        || entryType == EntryType.ftp
-//                        || entryType == EntryType.remotedesktop
-//                        || entryType == EntryType.shell
-//                        || entryType == EntryType.vnc
-//                        || entryType == EntryType.website)
-//            return fields.get("generic-password");
-//        else
-            return "";
-    }
-
-    public static String getFieldName(String fieldName, Activity activity) {
-        if ("generic-name".equals(fieldName)) {
-            return activity.getString(R.string.name);
-        }
-        if ("generic-password".equals(fieldName)) {
-            return activity.getString(R.string.password);
-        }
-        if ("generic-email".equals(fieldName)) {
-            return activity.getString(R.string.email);
-        }
-        if ("generic-username".equals(fieldName)) {
-            return activity.getString(R.string.username);
-        }
-        if ("generic-hostname".equals(fieldName)) {
-            return activity.getString(R.string.hostname);
-        }
-        if ("generic-port".equals(fieldName)) {
-            return activity.getString(R.string.port);
-        }
-        if ("generic-location".equals(fieldName)) {
-            return activity.getString(R.string.location);
-        }
-        if ("generic-pin".equals(fieldName)) {
-            return activity.getString(R.string.pin);
-        }
-        if ("generic-database".equals(fieldName)) {
-            return activity.getString(R.string.database);
-        }
-        if ("generic-url".equals(fieldName)) {
-            return activity.getString(R.string.url);
-        }
-        if ("generic-domain".equals(fieldName)) {
-            return activity.getString(R.string.domain);
-        }
-        if ("generic-code".equals(fieldName)) {
-            return activity.getString(R.string.code);
-        }
-        if ("creditcard-cardtype".equals(fieldName)) {
-            return activity.getString(R.string.cardtype);
-        }
-        if ("creditcard-ccv".equals(fieldName)) {
-            return activity.getString(R.string.ccv);
-        }
-        if ("creditcard-expirydate".equals(fieldName)) {
-            return activity.getString(R.string.expirydate);
-        }
-        if ("creditcard-cardnumber".equals(fieldName)) {
-            return activity.getString(R.string.cardnumber);
-        }
-        if ("phone-phonenumber".equals(fieldName)) {
-            return activity.getString(R.string.phonenumber);
-        }
-
-        return fieldName;
     }
 
     @Override
@@ -209,6 +177,7 @@ public class Entry implements Parcelable {
         out.writeString(notes);
         out.writeTypedList(fields);
         out.writeTypedList(children);
+        out.writeParcelable(secretFieldData, 0);
     }
 
     public static final Parcelable.Creator<Entry> CREATOR
@@ -310,7 +279,7 @@ public class Entry implements Parcelable {
                 default:
                     throw new UnknownEntryTypeException(value);
             }
-            
+
             return new EntryType(type);
         }
 

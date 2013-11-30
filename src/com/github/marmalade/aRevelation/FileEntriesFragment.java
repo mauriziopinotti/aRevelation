@@ -227,6 +227,7 @@ public class FileEntriesFragment extends ListFragment implements
         }
 
         AlertDialog.Builder builder = new AlertDialog.Builder(activity);
+        //TODO get rid of the enum
         final CharSequence[] items = LongClickActionItems.getCharSequences();
         builder.setItems(items, new DialogInterface.OnClickListener() {
             @Override

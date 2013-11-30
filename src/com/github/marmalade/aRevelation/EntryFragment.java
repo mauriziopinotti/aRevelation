@@ -169,7 +169,7 @@ public class EntryFragment extends Fragment implements AdapterView.OnItemClickLi
         data.add(values);
         for (Field field : entry.getFields()) {
             values = new HashMap<String, String>();
-            values.put(ROW_HEADER_IDENTIFIER, Entry.getFieldName(field.getFieldName(), activity));
+            values.put(ROW_HEADER_IDENTIFIER, field.getFieldName(activity));
             values.put(ROW_DATA_IDENTIFIER, field.getValue());
             data.add(values);
         }
