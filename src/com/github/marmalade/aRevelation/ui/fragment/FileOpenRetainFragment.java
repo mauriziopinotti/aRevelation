@@ -1,12 +1,12 @@
 package com.github.marmalade.aRevelation.ui.fragment;
 
 import android.app.Activity;
-import android.app.Fragment;
 import android.content.Context;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.AsyncTask.Status;
 import android.os.Bundle;
+import android.support.v4.app.Fragment;
 import android.util.Log;
 
 import com.github.marmalade.aRevelation.Cryptographer;

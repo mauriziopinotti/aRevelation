@@ -20,11 +20,11 @@
  */
 package com.github.marmalade.aRevelation;
 
-import android.app.Activity;
-import android.app.Fragment;
-import android.app.FragmentTransaction;
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentActivity;
+import android.support.v4.app.FragmentTransaction;
 
 
 /**
@@ -32,7 +32,7 @@ import android.os.Bundle;
  * Date: 5/29/13
  * Time: 11:26 PM
  */
-public class MainActivity extends Activity {
+public class MainActivity extends FragmentActivity {
 
     public final static String MAIN_MENU_FRAGMENT       = "MainMenuFragment";
     public final static String OPEN_FILE_FRAGMENT       = "OpenFileFragment";
@@ -43,7 +43,7 @@ public class MainActivity extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main_layout);
         if(savedInstanceState == null) {
-            FragmentTransaction fragmentTransaction = getFragmentManager().beginTransaction();
+            FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
             fragmentTransaction.add(R.id.mainLayout, new MainMenuFragment(), MAIN_MENU_FRAGMENT);
             fragmentTransaction.commit();
         }
@@ -78,9 +78,9 @@ public class MainActivity extends Activity {
 
 
     Fragment getCurrentFragment() {
-        Fragment myFragment = getFragmentManager().findFragmentByTag(MAIN_MENU_FRAGMENT);
+        Fragment myFragment = getSupportFragmentManager().findFragmentByTag(MAIN_MENU_FRAGMENT);
         if (myFragment.isVisible()) return myFragment;
-        myFragment = getFragmentManager().findFragmentByTag(OPEN_FILE_FRAGMENT);
+        myFragment = getSupportFragmentManager().findFragmentByTag(OPEN_FILE_FRAGMENT);
         if (myFragment.isVisible()) return myFragment;
         else return null;
 

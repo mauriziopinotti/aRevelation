@@ -20,7 +20,8 @@ along with aRevelation.  If not, see <http://www.gnu.org/licenses/>.
 -->
 <resources>
     <string name="tap_to_open">Tap to open file</string>
-    <string name="input_password">Input password:</string>
+    <string name="input_password_title">Enter password</string>
+    <string name="password_hint">Password</string>
     <string name="name">Name</string>
     <string name="password">Password</string>
     <string name="host">Host</string>
@@ -55,4 +56,5 @@ along with aRevelation.  If not, see <http://www.gnu.org/licenses/>.
     <string name="wrong_password_error">Wrong password</string>
     <string name="unsupported_file_format_exception">Unsupported file format</string>
     <string name="secret_data_copy_clipboard">Password has been copied to the clipboard</string>
+    <string name="submit">Submit</string>
 </resources>

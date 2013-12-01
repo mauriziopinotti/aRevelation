@@ -20,16 +20,13 @@
 package com.github.marmalade.aRevelation;
 
 import android.app.Activity;
-import android.app.AlertDialog;
-import android.app.Dialog;
-import android.app.ListFragment;
 import android.content.ClipData;
 import android.content.ClipboardManager;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
+import android.support.v4.app.ListFragment;
 import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
@@ -37,6 +34,7 @@ import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.Toast;
 
+import com.github.marmalade.aRevelation.AskPasswordDialogFragment.OnPasswordSubmitListener;
 import com.github.marmalade.aRevelation.io.Entry;
 import com.github.marmalade.aRevelation.io.Entry.EntryType;
 import com.github.marmalade.aRevelation.ui.EntryActivity;
@@ -50,7 +48,9 @@ import java.util.List;
  * Time: 8:54 PM
  */
 public class FileEntriesFragment extends ListFragment implements
-        AdapterView.OnItemLongClickListener, IBackPressedListener {
+        AdapterView.OnItemLongClickListener, IBackPressedListener, OnPasswordSubmitListener {
+
+    private static final String ASK_PASSWORD_DIALOG = "ask_password_dialog";
 
     public static interface ReadFileCallback {
         public void readFile(Uri uri, String password);
@@ -75,8 +75,6 @@ public class FileEntriesFragment extends ListFragment implements
      */
     public FileEntriesFragment() {
     }
-
-    ;
 
     public static FileEntriesFragment newInstance() {
         FileEntriesFragment fragment = new FileEntriesFragment();
@@ -108,33 +106,24 @@ public class FileEntriesFragment extends ListFragment implements
 
     private void askPassword() {
         final AskPasswordDialogFragment d = new AskPasswordDialogFragment();
+        d.show(getChildFragmentManager(), ASK_PASSWORD_DIALOG);
+    }
 
-        AskPasswordDialogFragment.AskPasswordOnClickListener dialogClickListener = d.new
-                AskPasswordOnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        Activity activity = getActivity();
-                        if (activity != null) {
-                            switch (which) {
-                                case DialogInterface.BUTTON_POSITIVE:
-                                    if (activity instanceof ReadFileCallback) {
-                                        ((ReadFileCallback) activity).readFile(mUri, d.editText.getEditableText().toString());
-                                        setListShown(false);
-                                    }
-                                    break;
-                                case DialogInterface.BUTTON_NEGATIVE:
-                                    if (activity != null) {
-                                        activity.finish();
-                                    }
-                                    break;
-                            }
+    @Override
+    public void onPasswordSubmit(String password) {
+        Activity activity = getActivity();
+        if (activity != null && activity instanceof ReadFileCallback) {
+            ((ReadFileCallback) activity).readFile(mUri, password);
+            setListShown(false);
+        }
+    }
 
-                        }
-                    }
-                };
-
-        d.setOnClickListener(dialogClickListener);
-        d.show(getFragmentManager(), null);
+    @Override
+    public void onPasswordCancel() {
+        Activity activity = getActivity();
+        if (activity != null) {
+            activity.finish();
+        }
     }
 
     @Override
@@ -262,7 +251,7 @@ public class FileEntriesFragment extends ListFragment implements
 //            public void onClick(DialogInterface dialog, int which) {
 //                switch (which) {
 //                    case DialogInterface.BUTTON_POSITIVE:
-//                        if(password.equals(d.editText.getEditableText().toString())) {
+//                        if(password.equals(d.mPasswordEditText.getEditableText().toString())) {
 //                            try {
 //                                entries = Entry.parseDecryptedXml(decryptedXML);
 //                                updateEntries();

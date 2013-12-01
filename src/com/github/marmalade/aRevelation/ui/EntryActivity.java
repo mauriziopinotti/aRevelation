@@ -1,9 +1,9 @@
 package com.github.marmalade.aRevelation.ui;
 
-import android.app.Activity;
-import android.app.FragmentTransaction;
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.v4.app.FragmentActivity;
+import android.support.v4.app.FragmentTransaction;
 
 import com.github.marmalade.aRevelation.EntryFragment;
 import com.github.marmalade.aRevelation.io.Entry;
@@ -12,7 +12,7 @@ import com.github.marmalade.aRevelation.R;
 /**
  * Created by sviro on 10/27/13.
  */
-public class EntryActivity extends Activity {
+public class EntryActivity extends FragmentActivity {
 
     public final static String ENTRY_FRAGMENT = "EntryFragment";
 
@@ -38,7 +38,7 @@ public class EntryActivity extends Activity {
         }
 
         if (savedInstanceState == null) {
-            FragmentTransaction fragmentTransaction = getFragmentManager().beginTransaction();
+            FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
             fragmentTransaction.replace(R.id.mainLayout,
                     new EntryFragment(entry, password), ENTRY_FRAGMENT).commit();
         }
