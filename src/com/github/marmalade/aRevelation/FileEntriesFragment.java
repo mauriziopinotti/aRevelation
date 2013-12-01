@@ -35,6 +35,7 @@ import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
+import android.widget.Toast;
 
 import com.github.marmalade.aRevelation.io.Entry;
 import com.github.marmalade.aRevelation.io.Entry.EntryType;
@@ -226,24 +227,14 @@ public class FileEntriesFragment extends ListFragment implements
             return true;
         }
 
-        AlertDialog.Builder builder = new AlertDialog.Builder(activity);
-        //TODO get rid of the enum
-        final CharSequence[] items = LongClickActionItems.getCharSequences();
-        builder.setItems(items, new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                if (items[which].equals(LongClickActionItems.copySecretData.toString())) {
-                    ClipboardManager clipboard = (ClipboardManager) activity.getSystemService
-                            (Context.CLIPBOARD_SERVICE);
-                    ClipData clip = ClipData.newPlainText("pass",
-                            entryArrayAdapter.getItem(position).getSecretFieldData());
-                    clipboard.setPrimaryClip(clip);
-                }
-            }
-        });
+        ClipboardManager clipboard = (ClipboardManager) activity.getSystemService
+                (Context.CLIPBOARD_SERVICE);
+        ClipData clip = ClipData.newPlainText("pass",
+                entryArrayAdapter.getItem(position).getSecretFieldData());
+        clipboard.setPrimaryClip(clip);
 
-        Dialog d = builder.create();
-        d.show();
+        Toast.makeText(activity, R.string.secret_data_copy_clipboard, Toast.LENGTH_SHORT).show();
+
         return true;
     }
 
@@ -315,33 +306,6 @@ public class FileEntriesFragment extends ListFragment implements
         this.entries = entries;
         updateEntries();
     }
-
-
-    /**
-     * Menu items of entry manipulating
-     */
-    private static enum LongClickActionItems {
-        copySecretData;
-
-        @Override
-        public String toString() {
-            switch (this) {
-                case copySecretData:
-                    return "Copy secret data";
-                default:
-                    return super.toString();
-            }
-        }
-
-        static CharSequence[] getCharSequences() {
-            CharSequence[] result = new CharSequence[values().length];
-            for (int i = 0; i < values().length; i++) {
-                result[i] = values()[i].toString();
-            }
-            return result;
-        }
-    }
-
 
     @Override
     public void onBackPressed() {

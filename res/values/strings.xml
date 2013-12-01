@@ -54,4 +54,5 @@ along with aRevelation.  If not, see <http://www.gnu.org/licenses/>.
     <string name="invalid_data_error">Invalid data</string>
     <string name="wrong_password_error">Wrong password</string>
     <string name="unsupported_file_format_exception">Unsupported file format</string>
+    <string name="secret_data_copy_clipboard">Password has been copied to the clipboard</string>
 </resources>
