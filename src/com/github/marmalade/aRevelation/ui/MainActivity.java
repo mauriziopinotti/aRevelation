@@ -18,13 +18,19 @@
  * You should have received a copy of the GNU General Public License
  * along with aRevelation.  If not, see <http://www.gnu.org/licenses/>.
  */
-package com.github.marmalade.aRevelation;
+package com.github.marmalade.aRevelation.ui;
 
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentTransaction;
+
+import com.github.marmalade.aRevelation.ui.fragment.EntryFragment;
+import com.github.marmalade.aRevelation.IBackPressedListener;
+import com.github.marmalade.aRevelation.ui.fragment.MainMenuFragment;
+import com.github.marmalade.aRevelation.R;
+import com.github.marmalade.aRevelation.ui.fragment.FileEntriesFragment;
 
 
 /**

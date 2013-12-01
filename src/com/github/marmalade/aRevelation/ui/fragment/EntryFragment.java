@@ -17,7 +17,7 @@
  * You should have received a copy of the GNU General Public License
  * along with aRevelation.  If not, see <http://www.gnu.org/licenses/>.
  */
-package com.github.marmalade.aRevelation;
+package com.github.marmalade.aRevelation.ui.fragment;
 
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -33,6 +33,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.*;
 
+import com.github.marmalade.aRevelation.R;
 import com.github.marmalade.aRevelation.io.Entry;
 import com.github.marmalade.aRevelation.io.Field;
 
@@ -116,7 +117,7 @@ public class EntryFragment extends Fragment implements AdapterView.OnItemClickLi
     }
 
 
-    void blockAccess() {
+    public void blockAccess() {
         isBlocked = true;
         data.clear();
         adapter.notifyDataSetChanged();

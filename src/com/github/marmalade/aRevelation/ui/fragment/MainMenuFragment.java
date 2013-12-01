@@ -17,7 +17,7 @@
  * You should have received a copy of the GNU General Public License
  * along with aRevelation.  If not, see <http://www.gnu.org/licenses/>.
  */
-package com.github.marmalade.aRevelation;
+package com.github.marmalade.aRevelation.ui.fragment;
 
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -26,6 +26,8 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.github.marmalade.aRevelation.R;
+import com.github.marmalade.aRevelation.ui.MainActivity;
 import com.github.marmalade.aRevelation.ui.fragment.OpenFileFragment;
 
 /**

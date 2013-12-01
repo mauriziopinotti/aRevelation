@@ -18,7 +18,7 @@
  * You should have received a copy of the GNU General Public License
  * along with aRevelation.  If not, see <http://www.gnu.org/licenses/>.
  */
-package com.github.marmalade.aRevelation;
+package com.github.marmalade.aRevelation.ui.fragment;
 
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -30,6 +30,8 @@ import android.support.v4.app.DialogFragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.EditText;
+
+import com.github.marmalade.aRevelation.R;
 
 /**
  * Author: <a href="mailto:alexey.kislin@gmail.com">Alexey Kislin</a>

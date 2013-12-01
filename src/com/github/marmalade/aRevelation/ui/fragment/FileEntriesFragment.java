@@ -17,7 +17,7 @@
  * You should have received a copy of the GNU General Public License
  * along with aRevelation.  If not, see <http://www.gnu.org/licenses/>.
  */
-package com.github.marmalade.aRevelation;
+package com.github.marmalade.aRevelation.ui.fragment;
 
 import android.app.Activity;
 import android.content.ClipData;
@@ -34,7 +34,9 @@ import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.Toast;
 
-import com.github.marmalade.aRevelation.AskPasswordDialogFragment.OnPasswordSubmitListener;
+import com.github.marmalade.aRevelation.IBackPressedListener;
+import com.github.marmalade.aRevelation.R;
+import com.github.marmalade.aRevelation.ui.fragment.AskPasswordDialogFragment.OnPasswordSubmitListener;
 import com.github.marmalade.aRevelation.io.Entry;
 import com.github.marmalade.aRevelation.io.Entry.EntryType;
 import com.github.marmalade.aRevelation.ui.EntryActivity;
