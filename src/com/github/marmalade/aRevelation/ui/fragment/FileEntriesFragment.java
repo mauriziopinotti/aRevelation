@@ -58,14 +58,11 @@ public class FileEntriesFragment extends ListFragment implements
         public void readFile(Uri uri, String password);
     }
 
+    private static final String ENTRIES = "entries";
     private static final String BLOCKED = "isBlocked";
-    private static final String POSITION = "position";
-    private static final String TOP = "top";
     private static final String FILE = "file";
 
-    private int savedScrollBarPosition;
-    private int top;
-    private List<Entry> entries;
+    private ArrayList<Entry> entries;
     private ArrayAdapter<Entry> entryArrayAdapter;
     private boolean isBlocked;
     private Uri mUri;
@@ -93,15 +90,14 @@ public class FileEntriesFragment extends ListFragment implements
 
         if (savedInstanceState != null) {
             Log.w("aRevelation", "savedInstanceState");
+            entries = savedInstanceState.getParcelableArrayList(ENTRIES);
             isBlocked = savedInstanceState.getBoolean(BLOCKED);
-            savedScrollBarPosition = savedInstanceState.getInt(POSITION);
-            top = savedInstanceState.getInt(TOP);
             Log.w("aRevelation", String.valueOf(isBlocked));
         } else {
+            entries = new ArrayList<>();
             askPassword();
         }
 
-        entries = new ArrayList<>();
         entryArrayAdapter = new ArrayAdapter<>(getActivity(), android.R.layout.simple_list_item_1, entries);
         setListAdapter(entryArrayAdapter);
     }
@@ -153,23 +149,13 @@ public class FileEntriesFragment extends ListFragment implements
         // Restore previous position
     }
 
-//
-//    @Override
-//    public void onPause() {
-//        // Save previous position
-//        savedScrollBarPosition = lv.getFirstVisiblePosition();
-//        top = (lv.getChildAt(0) == null) ? 0 : lv.getChildAt(0).getTop();
-//        super.onPause();
-//    }
-
 
     @Override
     public void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
 //        blockAccess();
+        outState.putParcelableArrayList(ENTRIES, entries);
         outState.putBoolean(BLOCKED, isBlocked);
-        outState.putInt(POSITION, savedScrollBarPosition);
-        outState.putInt(TOP, top);
     }
 
     @Override
@@ -281,20 +267,15 @@ public class FileEntriesFragment extends ListFragment implements
 
 
     private void updateEntries() {
-        Activity activity = getActivity();
-        if (activity == null) {
-            return;
-        }
-
-        entryArrayAdapter = new ArrayAdapter<Entry>(activity, android.R.layout.simple_list_item_1, entries);
-        setListAdapter(entryArrayAdapter);
         entryArrayAdapter.notifyDataSetChanged();
     }
 
     public void setEntries(List<Entry> entries) {
         setListShown(true);
 
-        this.entries = entries;
+        this.entries.clear();
+        this.entries.addAll(entries);
+
         updateEntries();
     }
 
