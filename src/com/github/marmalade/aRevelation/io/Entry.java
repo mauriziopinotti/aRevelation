@@ -17,6 +17,7 @@ import org.simpleframework.xml.transform.Transform;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Created by sviro on 11/25/13.
@@ -126,6 +127,14 @@ public class Entry implements Parcelable {
         return type.getType();
     }
 
+    /**
+     * Returns type of the entry in human readable format
+     * @return type of the entry in human readable format
+     */
+    public String getTypeFormatted() {
+        return type.toString();
+    }
+
     public String getName() {
         return name;
     }
@@ -134,8 +143,8 @@ public class Entry implements Parcelable {
         return description;
     }
 
-    public String getUpdated() {
-        return updated;
+    public long getUpdated() {
+        return TimeUnit.SECONDS.toMillis(Long.parseLong(updated));
     }
 
     public String getNotes() {

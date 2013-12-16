@@ -26,7 +26,7 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentTransaction;
 
-import com.github.marmalade.aRevelation.ui.fragment.EntryFragment;
+import com.github.marmalade.aRevelation.ui.fragment.EntryFieldsFragment;
 import com.github.marmalade.aRevelation.IBackPressedListener;
 import com.github.marmalade.aRevelation.ui.fragment.MainMenuFragment;
 import com.github.marmalade.aRevelation.R;
@@ -62,8 +62,8 @@ public class MainActivity extends FragmentActivity {
         Fragment currentFragment = getCurrentFragment();
         if (currentFragment instanceof FileEntriesFragment)
             ((FileEntriesFragment)currentFragment).blockAccess();
-        else if (currentFragment instanceof EntryFragment)
-            ((EntryFragment)currentFragment).blockAccess();
+        else if (currentFragment instanceof EntryFieldsFragment)
+            ((EntryFieldsFragment)currentFragment).blockAccess();
         super.onPause();
     }
 

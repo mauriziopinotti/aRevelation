@@ -166,6 +166,7 @@ public class FileEntriesFragment extends ListFragment implements
         }
 
         Entry selectedEntry = entryArrayAdapter.getItem(position);
+        //TODO remake selction of the folder
         if (selectedEntry.getType() == EntryType.TYPE_FOLDER) {
             try {
                 Entry nonReal = new Entry("...", null, null, null, null,
@@ -192,7 +193,6 @@ public class FileEntriesFragment extends ListFragment implements
         } else {
             Intent intent = new Intent(activity.getApplicationContext(), EntryActivity.class);
             intent.putExtra(EntryActivity.ENTRY, selectedEntry);
-            intent.putExtra(EntryActivity.PASSWORD, "test");
             startActivity(intent);
         }
     }
@@ -220,7 +220,7 @@ public class FileEntriesFragment extends ListFragment implements
      * Block access to decrypted data on application exit (home button pressed)
      */
     public void blockAccess() {
-        // The adapter could be null on restore access if cancel button is pressed
+        // The mAdapter could be null on restore access if cancel button is pressed
         if (entryArrayAdapter != null)
             entryArrayAdapter.clear();
         isBlocked = true;
