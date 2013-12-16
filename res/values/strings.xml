@@ -56,5 +56,6 @@ along with aRevelation.  If not, see <http://www.gnu.org/licenses/>.
     <string name="wrong_password_error">Wrong password</string>
     <string name="unsupported_file_format_exception">Unsupported file format</string>
     <string name="secret_data_copy_clipboard">Password has been copied to the clipboard</string>
+    <string name="field_copy_clipboard">%1$s has been copied to the clipboard</string>
     <string name="submit">Submit</string>
 </resources>

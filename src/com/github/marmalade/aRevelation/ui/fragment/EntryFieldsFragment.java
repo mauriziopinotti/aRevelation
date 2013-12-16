@@ -19,31 +19,34 @@
  */
 package com.github.marmalade.aRevelation.ui.fragment;
 
-import android.app.Activity;
+import android.content.ClipData;
+import android.content.ClipboardManager;
 import android.content.Context;
 import android.os.Bundle;
+import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.ListFragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.*;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
+import android.widget.ListView;
+import android.widget.TextView;
+import android.widget.Toast;
 
 import com.github.marmalade.aRevelation.R;
 import com.github.marmalade.aRevelation.io.Entry;
 import com.github.marmalade.aRevelation.io.Field;
 
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 /**
  * Author: <a href="mailto:alexey.kislin@gmail.com">Alexey Kislin</a>
  * Date: 9/4/13
  * Time: 2:00 AM
  */
-public class EntryFieldsFragment extends ListFragment implements AdapterView.OnItemClickListener,
-        AdapterView.OnItemLongClickListener {
+public class EntryFieldsFragment extends ListFragment implements AdapterView
+        .OnItemLongClickListener {
 
     private static final String ENTRY = "entry";
     private static final String BLOCKED = "blocked";
@@ -147,61 +150,27 @@ public class EntryFieldsFragment extends ListFragment implements AdapterView.OnI
 //        d.show(getFragmentManager(), null);
     }
 
-
-
     @Override
-    public void onItemClick(AdapterView<?> parent, View view, final int position, long id) {
-//        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-//        final CharSequence[] items= ClickActionItems.getCharSequences();
-//        builder.setItems(items,new DialogInterface.OnClickListener() {
-//            @Override
-//            public void onClick(DialogInterface dialog, int which) {
-//                if(items[which].equals(ClickActionItems.copy.toString())) {
-//                    ClipboardManager clipboard = (ClipboardManager) activity.getSystemService
-// (Context.CLIPBOARD_SERVICE);
-//                    Map<String, String> item = (Map<String, String>)lv.getAdapter().getItem
-// (position);
-//                    if(item.values().size() == 2) {
-//                        ClipData clip = ClipData.newPlainText("aRevelation data",
-// item.get(ROW_DATA_IDENTIFIER));
-//                        clipboard.setPrimaryClip(clip);
-//                    }
-//                }
-//            }
-//        });
-//
-//        Dialog d = builder.create();
-//        d.show();
-    }
+    public void onListItemClick(ListView l, View v, int position, long id) {
+        FragmentActivity activity = getActivity();
+        if (activity == null) {
+            return;
+        }
 
+        ClipboardManager clipboard = (ClipboardManager) activity.getSystemService
+                (Context.CLIPBOARD_SERVICE);
+        Field field = mAdapter.getItem(position);
+        ClipData clip = ClipData.newPlainText("aRevelation data", field.getValue());
+        clipboard.setPrimaryClip(clip);
+
+        Toast.makeText(activity, activity.getString(R.string.field_copy_clipboard,
+                field.getFieldName(activity)), Toast.LENGTH_SHORT).show();
+    }
 
     @Override
     public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
         //TODO Implement behaviour
         return false;
-    }
-
-
-    private static enum ClickActionItems {
-        copy;
-
-        @Override
-        public String toString() {
-            switch (this) {
-                case copy:
-                    return "Copy";
-                default:
-                    return super.toString();
-            }
-        }
-
-        static CharSequence[] getCharSequences() {
-            CharSequence[] result = new CharSequence[values().length];
-            for (int i = 0; i < values().length; i++) {
-                result[i] = values()[i].toString();
-            }
-            return result;
-        }
     }
 
     private static class FieldsAdapter extends ArrayAdapter<Field> {
