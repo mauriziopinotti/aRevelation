@@ -49,9 +49,7 @@ public class EntryFieldsFragment extends ListFragment implements AdapterView
         .OnItemLongClickListener {
 
     private static final String ENTRY = "entry";
-    private static final String BLOCKED = "blocked";
     private Entry entry;
-    private boolean isBlocked;
     FieldsAdapter mAdapter;
 
     public static EntryFieldsFragment newInstance(Entry entry) {
@@ -81,7 +79,6 @@ public class EntryFieldsFragment extends ListFragment implements AdapterView
 
         if (savedInstanceState != null) {
             entry = savedInstanceState.getParcelable(ENTRY);
-            isBlocked = savedInstanceState.getBoolean(BLOCKED);
         } else {
             Bundle arguments = getArguments();
             if (arguments != null) {
@@ -106,48 +103,6 @@ public class EntryFieldsFragment extends ListFragment implements AdapterView
     public void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
         outState.putParcelable(ENTRY, entry);
-        blockAccess();
-        outState.putBoolean(BLOCKED, isBlocked);
-    }
-
-
-    public void blockAccess() {
-//        isBlocked = true;
-//        data.clear();
-//        mAdapter.notifyDataSetChanged();
-    }
-
-
-    /**
-     * Restore access on application open
-     */
-    private void restoreAccess() {
-//        final AskPasswordDialogFragment d = new AskPasswordDialogFragment();
-//
-//        AskPasswordDialogFragment.AskPasswordOnClickListener dialogClickListener =  d.new
-// AskPasswordOnClickListener() {
-//            @Override
-//            public void onClick(DialogInterface dialog, int which) {
-//                switch (which){
-//                    case DialogInterface.BUTTON_POSITIVE:
-//                        if(password.equals(d.mPasswordEditText.getEditableText().toString())) {
-//                            showRevelationEntry(entry, activity);
-//                            isBlocked = false;
-//                        } else {
-//                            restoreAccess();
-//                        }
-//                        break;
-//
-//                    case DialogInterface.BUTTON_NEGATIVE:
-//                        ((MainActivity)getActivity()).reload(); // Go to file menu
-//                        break;
-//                }
-//            }
-//        };
-//
-//        d.setOnClickListener(dialogClickListener);
-//        d.setCancelable(false);
-//        d.show(getFragmentManager(), null);
     }
 
     @Override

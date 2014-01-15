@@ -51,7 +51,7 @@ public class OpenFileFragment extends ListFragment implements IBackPressedListen
     // Current mPath of a showed menu
     private String mPath;
 
-    private ArrayList<FileWrapper> mFilesBrowserItems = new ArrayList<FileWrapper>();
+    private ArrayList<FileWrapper> mFilesBrowserItems = new ArrayList<>();
     private ArrayAdapter<FileWrapper> mFilesBrowserAdapter;
 
     public static OpenFileFragment newInstance(String path) {
@@ -81,7 +81,7 @@ public class OpenFileFragment extends ListFragment implements IBackPressedListen
             mPath = savedInstanceState.getString(PATH);
         }
 
-        mFilesBrowserAdapter = new ArrayAdapter<FileWrapper>(this.getActivity(),
+        mFilesBrowserAdapter = new ArrayAdapter<>(this.getActivity(),
                 android.R.layout.simple_list_item_1, mFilesBrowserItems);
 
         setListAdapter(mFilesBrowserAdapter);

@@ -20,10 +20,12 @@ import java.util.List;
 /**
  * Created by sviro on 10/27/13.
  */
-public class FileActivity extends FragmentActivity implements OnReadFileListener, ReadFileCallback, OnErrorDialogCloseListener {
+public class FileActivity extends BlockAccessActivity implements OnReadFileListener,
+        ReadFileCallback, OnErrorDialogCloseListener {
 
     private static final String READ_FILE_FRAGMENT = "read_file_fragment";
     private static final String ERROR_DIALOG = "error_dialog";
+    private static final String FILE_ENTRIES_FRAGMENT = "file_entries_fragment";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -42,16 +44,28 @@ public class FileActivity extends FragmentActivity implements OnReadFileListener
 
         if (savedInstanceState == null) {
             FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
-            transaction.add(FileOpenRetainFragment.newInstance(), READ_FILE_FRAGMENT).commit();
+            transaction.add(FileOpenRetainFragment.newInstance(), READ_FILE_FRAGMENT);
+            transaction.add(R.id.mainLayout, FileEntriesFragment.newInstance(), FILE_ENTRIES_FRAGMENT);
+
+            transaction.commit();
         }
 
 
-        setContentView(R.layout.file_layout);
+        setContentView(R.layout.main_layout);
+    }
+
+    @Override
+    protected void blockAccess() {
+        //TODO stop decrypting file
+
+        FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
+        transaction.replace(R.id.mainLayout, FileEntriesFragment.newInstance(), FILE_ENTRIES_FRAGMENT).commitAllowingStateLoss();
     }
 
     @Override
     public void readFile(Uri uri, String password) {
-        FileOpenRetainFragment fragment = (FileOpenRetainFragment) getSupportFragmentManager().findFragmentByTag(READ_FILE_FRAGMENT);
+        FileOpenRetainFragment fragment = (FileOpenRetainFragment) getSupportFragmentManager()
+                .findFragmentByTag(READ_FILE_FRAGMENT);
 
         if (fragment != null) {
             fragment.readFile(uri, password);
@@ -61,7 +75,7 @@ public class FileActivity extends FragmentActivity implements OnReadFileListener
     @Override
     public void onFileRead(List<Entry> entries) {
         FileEntriesFragment fileEntriesFragment = (FileEntriesFragment) getSupportFragmentManager()
-                .findFragmentById(R.id.fileEntriesFragment);
+                .findFragmentByTag(FILE_ENTRIES_FRAGMENT);
 
         if (fileEntriesFragment != null) {
             fileEntriesFragment.setEntries(entries);

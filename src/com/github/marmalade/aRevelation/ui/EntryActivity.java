@@ -15,7 +15,7 @@ import com.github.marmalade.aRevelation.ui.fragment.EntryStatsFragment;
 /**
  * Created by sviro on 10/27/13.
  */
-public class EntryActivity extends FragmentActivity {
+public class EntryActivity extends BlockAccessActivity {
 
     public static final String ENTRY = "entry";
 
@@ -37,7 +37,9 @@ public class EntryActivity extends FragmentActivity {
 
         ActionBar actionBar = getActionBar();
         actionBar.setTitle(entry.getName());
-        actionBar.setSubtitle(entry.getTypeFormatted() + " - Updated " + DateUtils.getRelativeDateTimeString(this, entry.getUpdated(), DateUtils.MINUTE_IN_MILLIS, DateUtils.DAY_IN_MILLIS, 0));
+        actionBar.setSubtitle(entry.getTypeFormatted() + " - Updated " + DateUtils
+                .getRelativeDateTimeString(this, entry.getUpdated(), DateUtils.MINUTE_IN_MILLIS,
+                        DateUtils.DAY_IN_MILLIS, 0));
 
         if (savedInstanceState == null) {
             FragmentTransaction fragmentTransaction = getSupportFragmentManager()
@@ -47,5 +49,10 @@ public class EntryActivity extends FragmentActivity {
 
             fragmentTransaction.commit();
         }
+    }
+
+    @Override
+    protected void blockAccess() {
+        finish();
     }
 }

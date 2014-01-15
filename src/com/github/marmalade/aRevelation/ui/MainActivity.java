@@ -20,17 +20,14 @@
  */
 package com.github.marmalade.aRevelation.ui;
 
-import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentTransaction;
 
-import com.github.marmalade.aRevelation.ui.fragment.EntryFieldsFragment;
 import com.github.marmalade.aRevelation.IBackPressedListener;
-import com.github.marmalade.aRevelation.ui.fragment.MainMenuFragment;
 import com.github.marmalade.aRevelation.R;
-import com.github.marmalade.aRevelation.ui.fragment.FileEntriesFragment;
+import com.github.marmalade.aRevelation.ui.fragment.MainMenuFragment;
 
 
 /**
@@ -53,18 +50,6 @@ public class MainActivity extends FragmentActivity {
             fragmentTransaction.add(R.id.mainLayout, new MainMenuFragment(), MAIN_MENU_FRAGMENT);
             fragmentTransaction.commit();
         }
-    }
-
-
-    @Override
-    protected void onPause() {
-        // Close access
-        Fragment currentFragment = getCurrentFragment();
-        if (currentFragment instanceof FileEntriesFragment)
-            ((FileEntriesFragment)currentFragment).blockAccess();
-        else if (currentFragment instanceof EntryFieldsFragment)
-            ((EntryFieldsFragment)currentFragment).blockAccess();
-        super.onPause();
     }
 
     @Override
@@ -90,16 +75,5 @@ public class MainActivity extends FragmentActivity {
         if (myFragment.isVisible()) return myFragment;
         else return null;
 
-    }
-
-
-    public void reload() {
-        Intent intent = getIntent();
-        overridePendingTransition(0, 0);
-        intent.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
-        finish();
-
-        overridePendingTransition(0, 0);
-        startActivity(intent);
     }
 }

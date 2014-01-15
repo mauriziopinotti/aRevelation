@@ -36,7 +36,8 @@ import android.widget.Toast;
 
 import com.github.marmalade.aRevelation.IBackPressedListener;
 import com.github.marmalade.aRevelation.R;
-import com.github.marmalade.aRevelation.ui.fragment.AskPasswordDialogFragment.OnPasswordSubmitListener;
+import com.github.marmalade.aRevelation.ui.fragment.AskPasswordDialogFragment
+        .OnPasswordSubmitListener;
 import com.github.marmalade.aRevelation.io.Entry;
 import com.github.marmalade.aRevelation.io.Entry.EntryType;
 import com.github.marmalade.aRevelation.ui.EntryActivity;
@@ -59,28 +60,16 @@ public class FileEntriesFragment extends ListFragment implements
     }
 
     private static final String ENTRIES = "entries";
-    private static final String BLOCKED = "isBlocked";
-    private static final String FILE = "file";
 
     private ArrayList<Entry> entries;
     private ArrayAdapter<Entry> entryArrayAdapter;
-    private boolean isBlocked;
     private Uri mUri;
-
-
-    /**
-     * This constructor is used on restore if the process was killed.
-     * You shouldn't remove it.
-     */
-    public FileEntriesFragment() {
-    }
 
     public static FileEntriesFragment newInstance() {
         FileEntriesFragment fragment = new FileEntriesFragment();
 
         return fragment;
     }
-
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -91,14 +80,13 @@ public class FileEntriesFragment extends ListFragment implements
         if (savedInstanceState != null) {
             Log.w("aRevelation", "savedInstanceState");
             entries = savedInstanceState.getParcelableArrayList(ENTRIES);
-            isBlocked = savedInstanceState.getBoolean(BLOCKED);
-            Log.w("aRevelation", String.valueOf(isBlocked));
         } else {
             entries = new ArrayList<>();
             askPassword();
         }
 
-        entryArrayAdapter = new ArrayAdapter<>(getActivity(), android.R.layout.simple_list_item_1, entries);
+        entryArrayAdapter = new ArrayAdapter<>(getActivity(),
+                android.R.layout.simple_list_item_1, entries);
         setListAdapter(entryArrayAdapter);
     }
 
@@ -132,30 +120,9 @@ public class FileEntriesFragment extends ListFragment implements
     }
 
     @Override
-    public void onStart() {
-        super.onStart();
-//        try {
-//            if(isBlocked) {
-//                restoreAccess();
-//            } else {
-//                entries = Entry.parseDecryptedXml(decryptedXML);
-//                updateEntries();
-//                lv.setSelectionFromTop(savedScrollBarPosition, top);
-//            }
-//        } catch (Exception e) {
-//            //TODO Process error
-//            e.printStackTrace();
-//        }
-        // Restore previous position
-    }
-
-
-    @Override
     public void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
-//        blockAccess();
         outState.putParcelableArrayList(ENTRIES, entries);
-        outState.putBoolean(BLOCKED, isBlocked);
     }
 
     @Override
@@ -170,12 +137,12 @@ public class FileEntriesFragment extends ListFragment implements
         if (selectedEntry.getType() == EntryType.TYPE_FOLDER) {
             try {
                 Entry nonReal = new Entry("...", null, null, null, null,
-                        EntryType.TYPE_NON_REAL, new ArrayList<Entry>(entries));
-                entryArrayAdapter = new ArrayAdapter<Entry>(activity,
-                        android.R.layout.simple_list_item_1, new ArrayList<Entry>(selectedEntry
+                        EntryType.TYPE_NON_REAL, new ArrayList<>(entries));
+                entryArrayAdapter = new ArrayAdapter<>(activity,
+                        android.R.layout.simple_list_item_1, new ArrayList<>(selectedEntry
                         .getChildren()));
                 entryArrayAdapter.insert(nonReal, 0);
-                entries = new ArrayList<Entry>();
+                entries = new ArrayList<>();
                 entries.add(nonReal);
                 entries.addAll(selectedEntry.getChildren());
                 setListAdapter(entryArrayAdapter);
@@ -184,10 +151,10 @@ public class FileEntriesFragment extends ListFragment implements
             }
             entryArrayAdapter.notifyDataSetChanged();
         } else if (selectedEntry.getType() == EntryType.TYPE_NON_REAL) {
-            entryArrayAdapter = new ArrayAdapter<Entry>(activity,
-                    android.R.layout.simple_list_item_1, new ArrayList<Entry>(selectedEntry
+            entryArrayAdapter = new ArrayAdapter<>(activity,
+                    android.R.layout.simple_list_item_1, new ArrayList<>(selectedEntry
                     .getChildren()));
-            entries = new ArrayList<Entry>(selectedEntry.getChildren());
+            entries = new ArrayList<>(selectedEntry.getChildren());
             setListAdapter(entryArrayAdapter);
             entryArrayAdapter.notifyDataSetChanged();
         } else {
@@ -215,57 +182,6 @@ public class FileEntriesFragment extends ListFragment implements
         return true;
     }
 
-
-    /**
-     * Block access to decrypted data on application exit (home button pressed)
-     */
-    public void blockAccess() {
-        // The mAdapter could be null on restore access if cancel button is pressed
-        if (entryArrayAdapter != null)
-            entryArrayAdapter.clear();
-        isBlocked = true;
-    }
-
-
-    /**
-     * Restore access on application open
-     */
-    private void restoreAccess() {
-//        final AskPasswordDialogFragment d = new AskPasswordDialogFragment();
-//
-//        AskPasswordDialogFragment.AskPasswordOnClickListener dialogClickListener =  d.new
-// AskPasswordOnClickListener() {
-//            @Override
-//            public void onClick(DialogInterface dialog, int which) {
-//                switch (which) {
-//                    case DialogInterface.BUTTON_POSITIVE:
-//                        if(password.equals(d.mPasswordEditText.getEditableText().toString())) {
-//                            try {
-//                                entries = Entry.parseDecryptedXml(decryptedXML);
-//                                updateEntries();
-//                                lv.setSelectionFromTop(savedScrollBarPosition, top);
-//                                isBlocked = false;
-//                            } catch (Exception e) {
-//                                e.printStackTrace();
-//                            }
-//                        } else {
-//                            restoreAccess();
-//                        }
-//                        break;
-//
-//                    case DialogInterface.BUTTON_NEGATIVE:
-//                        ((MainActivity)getActivity()).reload(); // Go to file menu
-//                        break;
-//                }
-//            }
-//        };
-//
-//        d.setOnClickListener(dialogClickListener);
-//        d.setCancelable(false);
-//        d.show(getFragmentManager(), null);
-    }
-
-
     private void updateEntries() {
         entryArrayAdapter.notifyDataSetChanged();
     }
@@ -281,10 +197,10 @@ public class FileEntriesFragment extends ListFragment implements
 
     @Override
     public void onBackPressed() {
-        if (entryArrayAdapter.getCount() > 0 && entryArrayAdapter.getItem(0).getType() == EntryType.TYPE_NON_REAL)
+        if (entryArrayAdapter.getCount() > 0 && entryArrayAdapter.getItem(0).getType() ==
+                EntryType.TYPE_NON_REAL) {
             getListView().performItemClick(null, 0, 0);
-        else {
-            getFragmentManager().popBackStack();
         }
     }
+
 }
