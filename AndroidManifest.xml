@@ -10,6 +10,8 @@
         
     <uses-sdk android:minSdkVersion="11" android:targetSdkVersion="19"/>
 
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+
     <application
             android:icon="@drawable/icon"
             android:label="aRevelation">
@@ -22,8 +24,8 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
             <intent-filter>
-                <category android:name="android.intent.category.BROWSABLE"></category>
-                <data android:scheme=".MainActivity"></data>
+                <category android:name="android.intent.category.BROWSABLE"/>
+                <data android:scheme=".MainActivity"/>
             </intent-filter>
         </activity>
     </application>
