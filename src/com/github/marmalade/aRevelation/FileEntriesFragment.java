@@ -36,7 +36,6 @@ import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
-import javax.crypto.BadPaddingException;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 
@@ -84,7 +83,7 @@ public class FileEntriesFragment extends Fragment implements
      * This constructor is used on restore if the process was killed.
      * You shouldn't remove it.
      */
-    public FileEntriesFragment() {};
+    public FileEntriesFragment() {}
 
 
     public static FileEntriesFragment newInstance(String decryptedXML, byte[] encryptedXML, String password) {
@@ -165,7 +164,8 @@ public class FileEntriesFragment extends Fragment implements
     @Override
     public void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
-        blockAccess();
+        if(this.isRemoving()) // Block another fragment
+            blockAccess();
         outState.putString(DECRYPTED_XML, decryptedXML);
         outState.putString(PASSWORD, password);
         outState.putBoolean(BLOCKED, isBlocked);
@@ -338,7 +338,7 @@ public class FileEntriesFragment extends Fragment implements
         }
 
         private static Entry getEntry(Element elem) throws Exception {
-            String name = "", descr = "", updated = "", notes = "", type="";
+            String name = "", descr = "", updated = "", notes = "", type;
             NodeList nameL = elem.getChildNodes();
             type = elem.getAttribute(TYPE_ATTRIBUTE);
 
