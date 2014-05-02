@@ -65,7 +65,7 @@ public class EntryFragment extends Fragment implements AdapterView.OnItemClickLi
      * This constructor is used on restore if the process was killed.
      * You shouldn't remove it.
      */
-    public EntryFragment() {};
+    public EntryFragment() {}
 
 
     EntryFragment(FileEntriesFragment.Entry entry, String password) {

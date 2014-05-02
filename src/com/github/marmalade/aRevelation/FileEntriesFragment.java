@@ -211,17 +211,18 @@ public class FileEntriesFragment extends Fragment implements
 
     @Override
     public boolean onItemLongClick(AdapterView<?> parent, View view, final int position, long id) {
-        final LongClickActionItems[] menuItems = new LongClickActionItems[] {LongClickActionItems.copySecretData};
-        ArrayAdapter<LongClickActionItems> menuAdapter = new ArrayAdapter<LongClickActionItems>(activity,
-                android.R.layout.simple_list_item_1, menuItems);
         AlertDialog.Builder builder = new AlertDialog.Builder(activity);
         final CharSequence[] items= LongClickActionItems.getCharSequences();
-        builder.setItems(items,new DialogInterface.OnClickListener() {
+        builder.setItems(items, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 if(items[which].equals(LongClickActionItems.copySecretData.toString())) {
                     ClipboardManager clipboard = (ClipboardManager) activity.getSystemService(Context.CLIPBOARD_SERVICE);
                     ClipData clip = ClipData.newPlainText("pass", entryArrayAdapter.getItem(position).getSecretFieldData());
+                    clipboard.setPrimaryClip(clip);
+                } else if (items[which].equals(LongClickActionItems.copyLogin.toString())) {
+                    ClipboardManager clipboard = (ClipboardManager) activity.getSystemService(Context.CLIPBOARD_SERVICE);
+                    ClipData clip = ClipData.newPlainText("pass", entryArrayAdapter.getItem(position).getLoginFieldData());
                     clipboard.setPrimaryClip(clip);
                 }
             }
@@ -401,6 +402,10 @@ public class FileEntriesFragment extends Fragment implements
                 return "";
         }
 
+        String getLoginFieldData() {
+                return fields.get("generic-username");
+        }
+
         static String getFieldName(String fieldName, Activity activity) {
         	if ("generic-name".equals(fieldName)) {
         		return activity.getString(R.string.name);
@@ -514,13 +519,17 @@ public class FileEntriesFragment extends Fragment implements
      * Menu items of entry manipulating
      */
     private static enum LongClickActionItems {
+        copyLogin,
         copySecretData;
+
 
         @Override
         public String toString() {
             switch (this) {
                 case copySecretData:
-                    return "Copy secret data";
+                    return "Copy password";
+                case copyLogin:
+                    return "Copy login";
                 default:
                     return super.toString();
             }
