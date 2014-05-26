@@ -4,7 +4,7 @@
         xmlns:android="http://schemas.android.com/apk/res/android"
         package="com.github.marmalade.aRevelation"
         android:versionCode="1"
-        android:versionName="0.01"
+        android:versionName="0.01b"
         android:installLocation="auto">
 
         
@@ -22,8 +22,8 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
             <intent-filter>
-                <category android:name="android.intent.category.BROWSABLE"></category>
-                <data android:scheme=".MainActivity"></data>
+                <category android:name="android.intent.category.BROWSABLE"/>
+                <data android:scheme=".MainActivity"/>
             </intent-filter>
         </activity>
     </application>
