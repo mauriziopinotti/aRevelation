@@ -24,6 +24,7 @@ import android.app.Activity;
 import android.app.Fragment;
 import android.app.FragmentTransaction;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 
 
@@ -34,6 +35,8 @@ import android.os.Bundle;
  */
 public class MainActivity extends Activity {
 
+    public static final String PREFS_NAME = "LocalSecurityStorage";
+
     public final static String MAIN_MENU_FRAGMENT       = "MainMenuFragment";
     public final static String OPEN_FILE_FRAGMENT       = "OpenFileFragment";
     public final static String FILE_ENTRIES_FRAGMENT    = "FileEntriesFragment";
@@ -42,7 +45,18 @@ public class MainActivity extends Activity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        SharedPreferences settings = getSharedPreferences(PREFS_NAME, 0);
+        String securityCodeHash = settings.getString("securityCodeHash", "");
+
         setContentView(R.layout.main_layout);
+
+        if(securityCodeHash.isEmpty()) {
+            FragmentTransaction fragmentTransaction = getFragmentManager().beginTransaction();
+            fragmentTransaction.add(R.id.mainLinearLayout, new SetSecurityCodeDialogFragment(), "");
+            fragmentTransaction.commit();
+        }
+
         if(savedInstanceState == null) {
             FragmentTransaction fragmentTransaction = getFragmentManager().beginTransaction();
             fragmentTransaction.add(R.id.mainLinearLayout, new MainMenuFragment(), MAIN_MENU_FRAGMENT);
