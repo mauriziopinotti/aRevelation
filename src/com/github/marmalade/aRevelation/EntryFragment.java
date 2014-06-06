@@ -124,14 +124,15 @@ public class EntryFragment extends Fragment implements AdapterView.OnItemClickLi
      * Restore access on application open
      */
     private void restoreAccess() {
-        final AskPasswordDialogFragment d = new AskPasswordDialogFragment();
+        final AskCodeDialogFragment d = new AskCodeDialogFragment();
 
         AskPasswordDialogFragment.AskPasswordOnClickListener dialogClickListener =  d.new AskPasswordOnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
+                String code = getActivity().getSharedPreferences(((MainActivity)getActivity()).PREFS_NAME, 0).getString("securityCodeHash", "");
                 switch (which){
                     case DialogInterface.BUTTON_POSITIVE:
-                        if(password.equals(d.editText.getEditableText().toString())) {
+                        if(code.equals(d.editText.getEditableText().toString())) {
                             showRevelationEntry(entry, activity);
                             isBlocked = false;
                         } else {
