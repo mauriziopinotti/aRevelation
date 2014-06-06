@@ -36,7 +36,7 @@ import android.widget.EditText;
  */
 public class AskPasswordDialogFragment extends DialogFragment {
 
-    private AskPasswordOnClickListener onClickListener;
+    protected AskPasswordOnClickListener onClickListener;
     EditText editText;
 
 
