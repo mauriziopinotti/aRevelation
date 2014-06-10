@@ -64,15 +64,21 @@ public class MainActivity extends Activity {
         }
     }
 
+    static boolean isBlocked = false;
 
     @Override
     protected void onPause() {
-        // Close access
-        Fragment currentFragment = getCurrentFragment();
-        if (currentFragment instanceof FileEntriesFragment)
-            ((FileEntriesFragment)currentFragment).blockAccess();
-        else if (currentFragment instanceof EntryFragment)
-            ((EntryFragment)currentFragment).blockAccess();
+        if(!isBlocked) {
+            // Close access
+            Fragment currentFragment = getCurrentFragment();
+            if (currentFragment instanceof FileEntriesFragment) {
+                ((FileEntriesFragment) currentFragment).blockAccess();
+                isBlocked = true;
+            } else if (currentFragment instanceof EntryFragment) {
+                ((EntryFragment) currentFragment).blockAccess();
+                isBlocked = true;
+            }
+        }
         super.onPause();
     }
 

@@ -164,8 +164,6 @@ public class FileEntriesFragment extends Fragment implements
     @Override
     public void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
-        if(this.isRemoving()) // Block another fragment
-            blockAccess();
         outState.putString(DECRYPTED_XML, decryptedXML);
         outState.putString(PASSWORD, password);
         outState.putBoolean(BLOCKED, isBlocked);
@@ -263,6 +261,7 @@ public class FileEntriesFragment extends Fragment implements
                                 updateEntries();
                                 lv.setSelectionFromTop(savedScrollBarPosition, top);
                                 isBlocked = false;
+                                ((MainActivity) getActivity()).isBlocked = false;
                             } catch (Exception e) {
                                 e.printStackTrace();
                             }

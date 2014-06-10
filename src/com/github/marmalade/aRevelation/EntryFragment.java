@@ -108,7 +108,6 @@ public class EntryFragment extends Fragment implements AdapterView.OnItemClickLi
         super.onSaveInstanceState(outState);
         outState.putString(PASSWORD, password);
         outState.putSerializable(ENTRY, entry);
-        blockAccess();
         outState.putBoolean(BLOCKED, isBlocked);
     }
 
@@ -135,6 +134,7 @@ public class EntryFragment extends Fragment implements AdapterView.OnItemClickLi
                         if(code.equals(d.editText.getEditableText().toString())) {
                             showRevelationEntry(entry, activity);
                             isBlocked = false;
+                            ((MainActivity) getActivity()).isBlocked = false;
                         } else {
                             restoreAccess();
                         }

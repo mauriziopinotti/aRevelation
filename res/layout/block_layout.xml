@@ -1,0 +1,20 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              android:orientation="vertical"
+              android:layout_width="match_parent"
+              android:layout_height="match_parent">
+    <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="top|center"
+            android:textSize="30sp"
+            android:text="Insert secret code to unlock app:"
+            android:id="@+id/security_code_text_view"/>
+    <EditText
+            android:id="@+id/security_code_text_edit"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:inputType="numberPassword"
+            android:imeOptions="actionNext"
+            android:maxLines="1">
+    </EditText>
+</LinearLayout>
