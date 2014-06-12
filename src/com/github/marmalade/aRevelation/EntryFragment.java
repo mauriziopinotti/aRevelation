@@ -47,7 +47,6 @@ public class EntryFragment extends Fragment implements AdapterView.OnItemClickLi
 
     private static final String PASSWORD = "password";
     private static final String ENTRY = "entry";
-    private static final String BLOCKED = "blocked";
     private static final String ROW_HEADER_IDENTIFIER = "First Line";
     private static final String ROW_DATA_IDENTIFIER = "Second Line";
 
@@ -56,7 +55,6 @@ public class EntryFragment extends Fragment implements AdapterView.OnItemClickLi
     private Activity activity;
     private FileEntriesFragment.Entry entry;
     private String password;
-    private boolean isBlocked;
     HashMap<String, String> values;
     SimpleAdapter adapter;
     List<Map<String, String>> data;
@@ -85,7 +83,6 @@ public class EntryFragment extends Fragment implements AdapterView.OnItemClickLi
         if(savedInstanceState != null) {
             password = savedInstanceState.getString(PASSWORD);
             entry = (FileEntriesFragment.Entry) savedInstanceState.getSerializable(ENTRY);
-            isBlocked = savedInstanceState.getBoolean(BLOCKED);
         }
         activity = getActivity();
         super.onCreate(savedInstanceState);
@@ -95,7 +92,7 @@ public class EntryFragment extends Fragment implements AdapterView.OnItemClickLi
     @Override
     public void onStart() {
         lv = (ListView)activity.findViewById(R.id.entry_list);
-        if(isBlocked)
+        if(((MainActivity)getActivity()).isBlocked)
             restoreAccess();
         else
             showRevelationEntry(entry, activity);
@@ -108,12 +105,10 @@ public class EntryFragment extends Fragment implements AdapterView.OnItemClickLi
         super.onSaveInstanceState(outState);
         outState.putString(PASSWORD, password);
         outState.putSerializable(ENTRY, entry);
-        outState.putBoolean(BLOCKED, isBlocked);
     }
 
 
     void blockAccess() {
-        isBlocked = true;
         data.clear();
         adapter.notifyDataSetChanged();
     }
@@ -133,7 +128,6 @@ public class EntryFragment extends Fragment implements AdapterView.OnItemClickLi
                     case DialogInterface.BUTTON_POSITIVE:
                         if(code.equals(d.editText.getEditableText().toString())) {
                             showRevelationEntry(entry, activity);
-                            isBlocked = false;
                             ((MainActivity) getActivity()).isBlocked = false;
                         } else {
                             restoreAccess();
