@@ -105,19 +105,15 @@ public class FileEntriesFragment extends Fragment implements
             Log.w("aRevelation", "savedInstanceState");
 		    decryptedXML = savedInstanceState.getString(DECRYPTED_XML);
             password = savedInstanceState.getString(PASSWORD);
-            isBlocked = savedInstanceState.getBoolean(BLOCKED);
             savedScrollBarPosition = savedInstanceState.getInt(POSITION);
             top = savedInstanceState.getInt(TOP);
-            Log.w("aRevelation", String.valueOf(isBlocked));
         } else if (getArguments() != null) {
             Log.w("aRevelation", "arguments");
             Bundle arguments = getArguments();
             decryptedXML = arguments.getString(DECRYPTED_XML);
             password = arguments.getString(PASSWORD);
-            isBlocked = arguments.getBoolean(BLOCKED);
             savedScrollBarPosition = arguments.getInt(POSITION);
             top = arguments.getInt(TOP);
-            Log.w("aRevelation", String.valueOf(isBlocked));
         }
         super.onCreate(savedInstanceState);
     }
@@ -136,7 +132,7 @@ public class FileEntriesFragment extends Fragment implements
         lv.setOnItemClickListener(this);
         lv.setOnItemLongClickListener(this);
         try {
-            if(isBlocked) {
+            if(((MainActivity)getActivity()).isBlocked) {
                 restoreAccess();
             } else {
                 entries = Entry.parseDecryptedXml(decryptedXML);
@@ -166,7 +162,6 @@ public class FileEntriesFragment extends Fragment implements
         super.onSaveInstanceState(outState);
         outState.putString(DECRYPTED_XML, decryptedXML);
         outState.putString(PASSWORD, password);
-        outState.putBoolean(BLOCKED, isBlocked);
         outState.putInt(POSITION, savedScrollBarPosition);
         outState.putInt(TOP, top);
     }
@@ -239,7 +234,6 @@ public class FileEntriesFragment extends Fragment implements
         // The adapter could be null on restore access if cancel button is pressed
         if(entryArrayAdapter != null)
             entryArrayAdapter.clear();
-        isBlocked = true;
     }
 
 
@@ -260,7 +254,6 @@ public class FileEntriesFragment extends Fragment implements
                                 entries = Entry.parseDecryptedXml(decryptedXML);
                                 updateEntries();
                                 lv.setSelectionFromTop(savedScrollBarPosition, top);
-                                isBlocked = false;
                                 ((MainActivity) getActivity()).isBlocked = false;
                             } catch (Exception e) {
                                 e.printStackTrace();
