@@ -1,0 +1,42 @@
+task wrapper(type: Wrapper) {
+    gradleVersion = '2.2'
+}
+
+buildscript {
+	repositories {
+		mavenCentral()
+	}
+	dependencies {
+		classpath 'com.android.tools.build:gradle:1.1.2'
+	}
+}
+
+apply plugin: 'com.android.application'
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    compile ('org.simpleframework:simple-xml:2.7.+') {
+        exclude group: 'stax', module: 'stax-api'
+        exclude group: 'xpp3', module: 'xpp3'
+    }
+
+    testCompile 'junit:junit:4.12'
+    testCompile "org.mockito:mockito-core:1.9.5"
+}
+
+android {
+	compileSdkVersion 21
+	buildToolsVersion "21.1.2"
+	
+	defaultConfig {
+		targetSdkVersion 21
+	}
+    lintOptions {
+        abortOnError false
+    }
+}
+
+

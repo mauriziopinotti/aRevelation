@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">aRevelation</string>
+    <string name="cancel">Cancel</string>
+    <string name="open">Open</string>
+    <string name="createNew">New</string>
+    <string name="ask_password_message">Input password</string>
+    <!--Field names-->
+    <string name="name">Name</string>
+    <string name="description">Description</string>
+    <string name="notes">Notes</string>
+    <string name="updated">Updated</string>
+    <string name="generic_hostname">Hostname</string>
+    <string name="generic_username">Username</string>
+    <string name="generic_password">Password</string>
+    <string name="generic_database">Database</string>
+    <string name="generic_domain">Domain</string>
+    <string name="generic_url">Url</string>
+</resources>
