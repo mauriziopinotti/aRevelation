@@ -23,7 +23,7 @@ public class Entry implements Serializable {
     private boolean isDescriptionUpdated;
 
     @Element(name = "updated")
-    public int updated;
+    public long updated;
 
     @Element(name = "notes", required = false)
     private String notes;

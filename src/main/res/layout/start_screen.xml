@@ -15,7 +15,8 @@
             android:layout_height="fill_parent"
             android:layout_weight="1"
             android:gravity="center"
-            android:text="@string/createNew" />
+            android:text="@string/createNew"
+            android:enabled="false"/>
 
         <Button
             android:id="@+id/btnOpen"
@@ -37,7 +38,8 @@
                 android:layout_height="fill_parent"
                 android:layout_weight="1"
                 android:gravity="center"
-                android:text="Recent" />
+                android:text="Recent"
+                android:enabled="false"/>
 
         <Button
                 android:id="@+id/btnOption"
@@ -45,7 +47,8 @@
                 android:layout_height="fill_parent"
                 android:layout_weight="1"
                 android:gravity="center"
-                android:text="Option" />
+                android:text="Option"
+                android:enabled="false"/>
     </LinearLayout>
 
 </LinearLayout>

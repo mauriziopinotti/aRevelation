@@ -4,8 +4,10 @@ import org.simpleframework.xml.Attribute;
 import org.simpleframework.xml.Root;
 import org.simpleframework.xml.Text;
 
+import java.io.Serializable;
+
 @Root
-public class Field {
+public class Field implements Serializable {
 
     @Attribute(name="id")
     public String id;

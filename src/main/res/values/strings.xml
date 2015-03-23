@@ -15,5 +15,11 @@
     <string name="generic_password">Password</string>
     <string name="generic_database">Database</string>
     <string name="generic_domain">Domain</string>
+    <string name="generic_email">Email</string>
     <string name="generic_url">Url</string>
+    <string name="generic_pin">PIN</string>
+    <string name="creditcard_cardtype">Card type</string>
+    <string name="creditcard_cardnumber">Card number</string>
+    <string name="creditcard_expirydate">Expiry date</string>
+    <string name="creditcard_ccv">CCV</string>
 </resources>
