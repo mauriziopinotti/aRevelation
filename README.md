@@ -1,6 +1,6 @@
 # aRevelation
 
-## Build
+## Build (Ubuntu)
 
 ####Install JDK
 ```
@@ -32,15 +32,17 @@ apt-get install git
 ####Clone aRevelation project
 ```
 git clone https://github.com/MarmaladeSky/aRevelation.git
+```
 
 ####Install ia-32-libs or gcc-multilib (x86_64 OS)
 ```
 sudo apt-get install ia-32-libs
+```
 
 ####Go to project directory and run build
 ```
 cd aRevelation
 export ANDROID_HOME="path/to/android-sdk-linux"
 ./gradlew build
-
+```
 You can find .apk files in aRevelation/build/apk
