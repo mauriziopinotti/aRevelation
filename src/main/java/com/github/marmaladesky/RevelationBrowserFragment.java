@@ -15,61 +15,41 @@ import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.RelativeLayout;
-import com.github.marmaladesky.data.RevelationData;
-import org.simpleframework.xml.Serializer;
-import org.simpleframework.xml.core.Persister;
 
 public class RevelationBrowserFragment extends Fragment {
-	
-	private ListView simple;
-	
+
 	private RelativeLayout root;
 
-    String rvlXml;
+	public static RevelationBrowserFragment newInstance(String uuidList) {
+		RevelationBrowserFragment f = new RevelationBrowserFragment();
 
-	public static RevelationBrowserFragment newInstance(String rvlXml) {
-        RevelationBrowserFragment f = new RevelationBrowserFragment();
+		Bundle args = new Bundle();
+		args.putString("uuidList", uuidList);
+		f.setArguments(args);
 
-        Bundle args = new Bundle();
-        args.putString("rvlXml", rvlXml);
-        f.setArguments(args);
-
-        return f;
+		return f;
 	}
 
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container,
-			Bundle savedInstanceState   ) {
-
-        if(savedInstanceState == null || savedInstanceState.getString("rvlXml") == null)
-            rvlXml = getArguments().getString("rvlXml");
-         else
-            rvlXml = savedInstanceState.getString("rvlXml");
+			Bundle savedInstanceState) {
+		List<Entry> groupUuid;
+		if(savedInstanceState == null || savedInstanceState.getString("entryId") == null)
+			groupUuid = ((ARevelation) getActivity()).rvlData.getEntryGroupById(getArguments().getString("uuidList"));
+		else
+			groupUuid = ((ARevelation) getActivity()).rvlData.getEntryGroupById(savedInstanceState.getString("uuidList"));
 
 		View v = inflater.inflate(R.layout.revelation_structure_browser, container, false);
-		simple = (ListView) v.findViewById(R.id.rootList);
+		ListView simple = (ListView) v.findViewById(R.id.rootList);
 		root = (RelativeLayout) v.findViewById(R.id.rootRvlBrowser);
 
-        RevelationData example;
-
         try {
-            Serializer serializer = new Persister();
-            example = serializer.read(RevelationData.class, rvlXml, false);
-            System.out.println(example);
-
-		
-            NodeArrayAdapter itemsAdapter = new NodeArrayAdapter(this.getActivity(), android.R.layout.simple_list_item_1, example.list);
-
+            NodeArrayAdapter itemsAdapter = new NodeArrayAdapter(this.getActivity(), android.R.layout.simple_list_item_1, groupUuid);
             simple.setOnItemClickListener(new ListListener());
-
             simple.setAdapter(itemsAdapter);
-
         } catch (Exception e) {
             e.printStackTrace();
-            System.out.println(e);
         }
-		
-		
 		return v;
 	}
 	
@@ -79,12 +59,18 @@ public class RevelationBrowserFragment extends Fragment {
             try {
                 Entry n = (Entry) parent.getItemAtPosition(position);
                 if (!n.type.equals("folder")) {
-                    EntryFragment nextFrag = EntryFragment.newInstance(n);
+                    EntryFragment nextFrag = EntryFragment.newInstance(n.getUuid());
                     getFragmentManager()
                             .beginTransaction()
-                            .replace(R.id.mainContainer, nextFrag)
+                            .replace(R.id.list, nextFrag)
                             .addToBackStack(null).commit();
-                }
+                } else {
+					RevelationBrowserFragment nextFrag = RevelationBrowserFragment.newInstance(n.getUuid());
+					getFragmentManager()
+							.beginTransaction()
+							.replace(R.id.list, nextFrag)
+							.addToBackStack(null).commit();
+				}
             } catch(Exception e) {
                 e.printStackTrace();
                 throw e;
@@ -95,9 +81,9 @@ public class RevelationBrowserFragment extends Fragment {
 	
 	private void showListView(List<Entry> nodes) {
 		ListView child = new ListView(root.getContext());
-		child.setLayoutParams(new LayoutParams(LayoutParams.FILL_PARENT, LayoutParams.FILL_PARENT));
+		child.setLayoutParams(new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT));
 		child.setAdapter(
-				new ArrayAdapter<String>(this.getActivity(), android.R.layout.simple_list_item_1, new String[] {"One","Two","Three"}));
+				new ArrayAdapter<>(this.getActivity(), android.R.layout.simple_list_item_1, new String[] {"One","Two","Three"}));
 		root.addView(child);
 		child.bringToFront();
 		child.setBackgroundResource(android.R.color.black);
@@ -105,11 +91,5 @@ public class RevelationBrowserFragment extends Fragment {
 		child.setAdapter(new NodeArrayAdapter(this.getActivity(), android.R.layout.simple_list_item_1, nodes));
 		child.setOnItemClickListener(new ListListener());
 	}
-
-    @Override
-    public void onSaveInstanceState(Bundle outState) {
-        super.onSaveInstanceState(outState);
-        if(rvlXml != null) outState.putSerializable("rvlXml", rvlXml); // TODO save parsed data, not source string
-    }
 
 }

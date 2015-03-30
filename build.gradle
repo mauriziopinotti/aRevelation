@@ -18,13 +18,20 @@ repositories {
 }
 
 dependencies {
-    compile ('org.simpleframework:simple-xml:2.7.+') {
-        exclude group: 'stax', module: 'stax-api'
-        exclude group: 'xpp3', module: 'xpp3'
-    }
+	compile('org.simpleframework:simple-xml:2.7.1') {
+		exclude group: 'stax', module: 'stax-api'
+		exclude group: 'xpp3', module: 'xpp3'
+	}
+	testCompile 'junit:junit:4.12'
+	testCompile 'org.mockito:mockito-core:1.9.5'
+}
 
-    testCompile 'junit:junit:4.12'
-    testCompile "org.mockito:mockito-core:1.9.5"
+allprojects {
+	gradle.projectsEvaluated {
+		tasks.withType(JavaCompile) {
+			options.compilerArgs << "-Xlint:unchecked" << "-Xlint:deprecation"
+		}
+	}
 }
 
 android {
@@ -34,8 +41,10 @@ android {
 	defaultConfig {
 		targetSdkVersion 22
 	}
+
     lintOptions {
-        abortOnError false
+		disable 'InvalidPackage'
+        abortOnError true
     }
 }
 

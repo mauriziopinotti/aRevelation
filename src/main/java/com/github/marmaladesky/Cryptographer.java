@@ -7,6 +7,7 @@ import javax.crypto.spec.IvParameterSpec;
 import javax.crypto.spec.PBEKeySpec;
 import javax.crypto.spec.SecretKeySpec;
 import java.io.*;
+import java.nio.charset.Charset;
 import java.security.Key;
 import java.security.MessageDigest;
 import java.security.spec.KeySpec;
@@ -57,7 +58,7 @@ public class Cryptographer {
                 }
 
                 byte[] result = decompress(compressedData);
-                return new String(result);
+                return new String(result, Charset.forName("UTF-8"));
             }
         }
 
@@ -99,7 +100,7 @@ public class Cryptographer {
         byte[] encrypted= new byte[cypher.getOutputSize(hashAndData.length)];
 
         int enc_len = cypher.update(hashAndData, 0, hashAndData.length, encrypted, 0);
-        enc_len += cypher.doFinal(encrypted, enc_len);
+        cypher.doFinal(encrypted, enc_len);
 
         byte[] a1 = concatenateByteArrays(MAGIC_STRING_DATA_VERSION_2, VERSION_0_4_7);
         a1 = concatenateByteArrays(a1, new byte[] {0,0,0});

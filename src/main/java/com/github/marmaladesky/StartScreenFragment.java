@@ -8,6 +8,7 @@ import android.app.*;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -15,14 +16,14 @@ import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.LinearLayout;
 import android.widget.TextView;
+import com.github.marmaladesky.data.RevelationData;
+import org.simpleframework.xml.Serializer;
+import org.simpleframework.xml.core.Persister;
 
 public class StartScreenFragment extends Fragment {
 
 	static final int REQUEST_FILE_OPEN = 1;
-	
-	LinearLayout mainContainer;
 
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -32,15 +33,19 @@ public class StartScreenFragment extends Fragment {
         Button btnOpen = (Button) v.findViewById(R.id.btnOpen);
         Button btnOption = (Button) v.findViewById(R.id.btnOption);
 
-		
-		mainContainer = (LinearLayout) v.findViewById(R.id.mainContainer);
-
 		btnOpen.setOnClickListener(new OnClickListener() {
 			public void onClick(View v) {
-				System.out.println("Open button pressed!");
-				Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
-				intent.setType("application/*");
-				startActivityForResult(intent, REQUEST_FILE_OPEN);
+				if(Build.VERSION.SDK_INT >= 19) {
+					Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
+					intent.addCategory(Intent.CATEGORY_OPENABLE);
+					intent.setType("application/*");
+					startActivityForResult(intent, REQUEST_FILE_OPEN);
+				} else {
+					Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
+					intent.addCategory(Intent.CATEGORY_OPENABLE);
+					intent.setType("application/*");
+					startActivityForResult(intent, REQUEST_FILE_OPEN);
+				}
 			}
 		});
         btnOption.setOnClickListener(new OptionButtonListener());
@@ -111,15 +116,25 @@ public class StartScreenFragment extends Fragment {
 			    		Boolean wantToCloseDialog = false;
 			            EditText password = (EditText) getDialog().findViewById(R.id.password);
 									
-						String result = "";
+						String result;
 
 						try {
 							InputStream iStream = getActivity().getContentResolver().openInputStream(Uri.parse(file));
 							byte[] inputData = getBytes(iStream);
 							result = Cryptographer.decrypt(inputData, password.getText().toString());
-							RevelationBrowserFragment nextFrag = RevelationBrowserFragment.newInstance(result);
+
+							try {
+								Serializer serializer = new Persister();
+								((ARevelation)getActivity()).rvlData = serializer.read(RevelationData.class, result, false);
+							} catch (Exception e) {
+								e.printStackTrace();
+							}
+							RevelationBrowserFragment nextFrag = RevelationBrowserFragment.newInstance(((ARevelation)getActivity()).rvlData.getUuid());
+							((ARevelation)getActivity()).password = password.getText().toString();
+							((ARevelation)getActivity()).currentFile = file;
+
 							getActivity().getFragmentManager().beginTransaction()
-							.replace(R.id.mainContainer, nextFrag)
+							.replace(R.id.list, nextFrag)
 							.addToBackStack(null).commit();
 							wantToCloseDialog = true;
 						}
@@ -141,7 +156,7 @@ public class StartScreenFragment extends Fragment {
             int bufferSize = 1024;
             byte[] buffer = new byte[bufferSize];
 
-            int len = 0;
+            int len;
             while ((len = inputStream.read(buffer)) != -1) {
                 byteBuffer.write(buffer, 0, len);
             }
