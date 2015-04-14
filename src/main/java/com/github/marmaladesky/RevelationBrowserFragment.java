@@ -34,23 +34,23 @@ public class RevelationBrowserFragment extends Fragment {
 	public View onCreateView(LayoutInflater inflater, ViewGroup container,
 			Bundle savedInstanceState) {
 		List<Entry> groupUuid;
-		if(savedInstanceState == null || savedInstanceState.getString("entryId") == null)
-			groupUuid = ((ARevelation) getActivity()).rvlData.getEntryGroupById(getArguments().getString("uuidList"));
-		else
-			groupUuid = ((ARevelation) getActivity()).rvlData.getEntryGroupById(savedInstanceState.getString("uuidList"));
-
 		View v = inflater.inflate(R.layout.revelation_structure_browser, container, false);
-		ListView simple = (ListView) v.findViewById(R.id.rootList);
-		root = (RelativeLayout) v.findViewById(R.id.rootRvlBrowser);
+		try {
+			if (savedInstanceState == null || savedInstanceState.getString("uuidList") == null)
+				groupUuid = ((ARevelation) getActivity()).rvlData.getEntryGroupById(getArguments().getString("uuidList"));
+			else
+				groupUuid = ((ARevelation) getActivity()).rvlData.getEntryGroupById(savedInstanceState.getString("uuidList"));
 
-        try {
-            NodeArrayAdapter itemsAdapter = new NodeArrayAdapter(this.getActivity(), android.R.layout.simple_list_item_1, groupUuid);
-            simple.setOnItemClickListener(new ListListener());
-            simple.setAdapter(itemsAdapter);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+			ListView simple = (ListView) v.findViewById(R.id.rootList);
+			root = (RelativeLayout) v.findViewById(R.id.rootRvlBrowser);
+			NodeArrayAdapter itemsAdapter = new NodeArrayAdapter(this.getActivity(), android.R.layout.simple_list_item_1, groupUuid);
+			simple.setOnItemClickListener(new ListListener());
+			simple.setAdapter(itemsAdapter);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 		return v;
+
 	}
 	
 	private class ListListener implements OnItemClickListener {

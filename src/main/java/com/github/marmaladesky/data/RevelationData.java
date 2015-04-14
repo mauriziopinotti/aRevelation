@@ -4,6 +4,7 @@ import org.simpleframework.xml.Attribute;
 import org.simpleframework.xml.ElementList;
 import org.simpleframework.xml.Root;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -34,15 +35,16 @@ public class RevelationData {
     }
 
     private static Entry getEntryById(List<Entry> list, String uuid) {
-        for(Entry e : list) {
-            if(e.type.equals("folder")) {
-                Entry n = getEntryById(e.list, uuid);
-                if(n != null)
-                    return n;
+        if(list != null)
+            for(Entry e : list) {
+                if(e.type.equals("folder")) {
+                    Entry n = getEntryById(e.list, uuid);
+                    if(n != null)
+                        return n;
+                }
+                if(e.getUuid().equals(uuid))
+                    return e;
             }
-            if(e.getUuid().equals(uuid))
-                return e;
-        }
         return null;
     }
 
@@ -72,20 +74,21 @@ public class RevelationData {
         throw new Exception("Cannot find field with id=" + uuid);
     }
 
-    public List<Entry> getEntryGroupById(String uuid) {
+    public List<Entry> getEntryGroupById(String uuid) throws Exception {
         if(this.uuid.equals(uuid))
             return list;
         else
             return getEntryGroupById(list, uuid);
     }
 
-    private List<Entry> getEntryGroupById(List<Entry> entries, String uuid) {
+    private List<Entry> getEntryGroupById(List<Entry> entries, String uuid) throws Exception {
         for(Entry e : entries) {
             if(e.type.equals("folder")) {
                 if(e.getUuid().equals(uuid)) {
                     return e.list;
                 } else {
-                    getEntryGroupById(e.list, uuid);
+                    List<Entry> l = getEntryGroupById(e.list, uuid);
+                    if (l != null) return l;
                 }
             }
         }
