@@ -8,7 +8,8 @@
         android:layout_width="fill_parent"
         android:layout_height="fill_parent"
         android:layout_weight="1"
-        android:orientation="horizontal" >
+        android:orientation="horizontal"
+        style="?android:attr/buttonBarStyle">
 
         <Button
             android:layout_width="fill_parent"
@@ -16,7 +17,8 @@
             android:layout_weight="1"
             android:gravity="center"
             android:text="@string/createNew"
-            android:enabled="false"/>
+            android:enabled="false"
+            style="?android:attr/buttonBarButtonStyle"/>
 
         <Button
             android:id="@+id/btnOpen"
@@ -24,7 +26,8 @@
             android:layout_height="fill_parent"
             android:layout_weight="1"
             android:gravity="center"
-            android:text="@string/open" />
+            android:text="@string/open"
+            style="?android:attr/buttonBarButtonStyle"/>
     </LinearLayout>
 
     <LinearLayout
@@ -32,14 +35,16 @@
         android:layout_width="fill_parent"
         android:layout_height="fill_parent"
         android:layout_weight="1"
-        android:orientation="horizontal" >
+        android:orientation="horizontal"
+        style="?android:attr/buttonBarStyle">
         <Button
                 android:layout_width="fill_parent"
                 android:layout_height="fill_parent"
                 android:layout_weight="1"
                 android:gravity="center"
                 android:text="Recent"
-                android:enabled="false"/>
+                android:enabled="false"
+                style="?android:attr/buttonBarButtonStyle"/>
 
         <Button
                 android:id="@+id/btnOption"
@@ -48,7 +53,8 @@
                 android:layout_weight="1"
                 android:gravity="center"
                 android:text="Option"
-                android:enabled="false"/>
+                android:enabled="false"
+                style="?android:attr/buttonBarButtonStyle"/>
     </LinearLayout>
 
 </LinearLayout>
