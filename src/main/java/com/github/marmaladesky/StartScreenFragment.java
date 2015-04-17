@@ -4,6 +4,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 
+import android.annotation.TargetApi;
 import android.app.*;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -25,6 +26,7 @@ public class StartScreenFragment extends Fragment {
 
 	static final int REQUEST_FILE_OPEN = 1;
 
+	@TargetApi(19)
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container,
 			Bundle savedInstanceState) {
@@ -35,17 +37,12 @@ public class StartScreenFragment extends Fragment {
 
 		btnOpen.setOnClickListener(new OnClickListener() {
 			public void onClick(View v) {
-				if(Build.VERSION.SDK_INT >= 19) {
-					Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
-					intent.addCategory(Intent.CATEGORY_OPENABLE);
-					intent.setType("application/*");
-					startActivityForResult(intent, REQUEST_FILE_OPEN);
-				} else {
-					Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
-					intent.addCategory(Intent.CATEGORY_OPENABLE);
-					intent.setType("application/*");
-					startActivityForResult(intent, REQUEST_FILE_OPEN);
-				}
+				String action = Build.VERSION.SDK_INT >= 19 ? Intent.ACTION_OPEN_DOCUMENT : Intent.ACTION_GET_CONTENT;
+				Intent intent = new Intent(action);
+				intent.addCategory(Intent.CATEGORY_OPENABLE);
+				intent.setType("application/*");
+				startActivityForResult(intent, REQUEST_FILE_OPEN);
+
 			}
 		});
         btnOption.setOnClickListener(new OptionButtonListener());
