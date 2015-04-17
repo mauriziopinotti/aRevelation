@@ -1,13 +1,14 @@
-package github.marmaladesky.tests;
+package com.github.marmaladesky.tests;
 
 import com.github.marmaladesky.Cryptographer;
 
-import junit.framework.TestCase;
 import org.junit.Test;
 
 import java.io.*;
 
-public class CryptographerTest extends TestCase {
+import static org.junit.Assert.assertEquals;
+
+public class CryptographerTest {
 
     private static final String DECRYPTED_DATA_FILE_4_14 = "src/test/res/rvl_test-0.4.14.xml";
     private static final String ENCRYPTED_DATA_FILE_4_14 = "src/test/res/rvl_test-0.4.14";
@@ -39,7 +40,7 @@ public class CryptographerTest extends TestCase {
         BufferedReader reader = new BufferedReader(
                 new FileReader(filePath));
         char[] buf = new char[1024];
-        int numRead=0;
+        int numRead;
         while((numRead=reader.read(buf)) != -1){
             String readData = String.valueOf(buf, 0, numRead);
             fileData.append(readData);
