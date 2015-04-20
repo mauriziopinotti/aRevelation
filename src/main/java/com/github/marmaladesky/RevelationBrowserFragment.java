@@ -18,8 +18,6 @@ import android.widget.RelativeLayout;
 
 public class RevelationBrowserFragment extends Fragment {
 
-	private RelativeLayout root;
-
 	public static RevelationBrowserFragment newInstance(String uuidList) {
 		RevelationBrowserFragment f = new RevelationBrowserFragment();
 
@@ -42,7 +40,6 @@ public class RevelationBrowserFragment extends Fragment {
 				groupUuid = ((ARevelation) getActivity()).rvlData.getEntryGroupById(savedInstanceState.getString("uuidList"));
 
 			ListView simple = (ListView) v.findViewById(R.id.rootList);
-			root = (RelativeLayout) v.findViewById(R.id.rootRvlBrowser);
 			NodeArrayAdapter itemsAdapter = new NodeArrayAdapter(this.getActivity(), android.R.layout.simple_list_item_1, groupUuid);
 			simple.setOnItemClickListener(new ListListener());
 			simple.setAdapter(itemsAdapter);
@@ -77,19 +74,6 @@ public class RevelationBrowserFragment extends Fragment {
             }
 		}
 
-	}
-	
-	private void showListView(List<Entry> nodes) {
-		ListView child = new ListView(root.getContext());
-		child.setLayoutParams(new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT));
-		child.setAdapter(
-				new ArrayAdapter<>(this.getActivity(), android.R.layout.simple_list_item_1, new String[] {"One","Two","Three"}));
-		root.addView(child);
-		child.bringToFront();
-		child.setBackgroundResource(android.R.color.black);
-		// child.setX(child.getX() + 40); Not now
-		child.setAdapter(new NodeArrayAdapter(this.getActivity(), android.R.layout.simple_list_item_1, nodes));
-		child.setOnItemClickListener(new ListListener());
 	}
 
 }
