@@ -42,7 +42,7 @@
                 android:layout_height="fill_parent"
                 android:layout_weight="1"
                 android:gravity="center"
-                android:text="Recent"
+                android:text="@string/recent"
                 android:enabled="false"
                 style="?android:attr/buttonBarButtonStyle"/>
 
@@ -52,7 +52,7 @@
                 android:layout_height="fill_parent"
                 android:layout_weight="1"
                 android:gravity="center"
-                android:text="Option"
+                android:text="@string/settings"
                 android:enabled="false"
                 style="?android:attr/buttonBarButtonStyle"/>
     </LinearLayout>
