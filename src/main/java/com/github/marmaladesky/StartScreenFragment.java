@@ -4,6 +4,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 
+import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
 import android.app.*;
 import android.content.DialogInterface;
@@ -77,6 +78,7 @@ public class StartScreenFragment extends Fragment {
             return f;
         }
 
+		@SuppressLint("InflateParams") // Passing null is normal for dialogs
 		@Override
 		public Dialog onCreateDialog(Bundle savedInstanceState) {
             if(savedInstanceState != null && savedInstanceState.getString("file") != null)

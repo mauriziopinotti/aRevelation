@@ -1,5 +1,6 @@
 package com.github.marmaladesky;
 
+import android.annotation.SuppressLint;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.DialogFragment;
@@ -25,6 +26,7 @@ public class EditFieldDialog extends DialogFragment {
         return d;
     }
 
+    @SuppressLint("InflateParams") // Passing null is normal for dialogs
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
         try {
