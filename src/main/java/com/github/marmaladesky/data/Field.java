@@ -43,4 +43,11 @@ public class Field implements Serializable {
         return value;
     }
 
+    public boolean isUpdated() {
+        return isUpdated;
+    }
+
+    public void cleanUpdateStatus() {
+        isUpdated = false;
+    }
 }

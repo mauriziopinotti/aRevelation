@@ -43,6 +43,7 @@ public class RevelationBrowserFragment extends Fragment {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
+		((ARevelation) getActivity()).checkButton();
 		return v;
 
 	}

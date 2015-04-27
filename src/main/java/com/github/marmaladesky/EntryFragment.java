@@ -105,6 +105,7 @@ public class EntryFragment extends Fragment {
 
         simple.setAdapter(itemsAdapter);
         simple.setOnItemClickListener(new PasswordOnClickListener());
+        ((ARevelation) getActivity()).checkButton();
         return v;
     }
 

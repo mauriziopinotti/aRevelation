@@ -104,4 +104,23 @@ public class Entry implements Serializable {
     public String toString() {
         return name;
     }
+
+    public boolean isEdited() {
+        boolean isSelfEdited = isNameUpdated || isDescriptionUpdated || isNotesUpdated;
+        if(isSelfEdited) return true;
+
+        if(fields != null) for(Field f : fields) if(f.isUpdated()) return true;
+
+        if(list != null) for(Entry e : list) if(e.isEdited()) return true;
+
+        return false;
+    }
+
+    public void cleanUpdateStatus() {
+        isNameUpdated = false;
+        isDescriptionUpdated = false;
+        isNotesUpdated = false;
+        if(fields != null) for(Field f : fields) f.cleanUpdateStatus();
+        if(list != null) for(Entry e : list) e.cleanUpdateStatus();
+    }
 }

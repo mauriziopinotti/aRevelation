@@ -1,9 +1,16 @@
 package com.github.marmaladesky.data;
 
+import android.content.ContentResolver;
+import android.net.Uri;
+import com.github.marmaladesky.Cryptographer;
 import org.simpleframework.xml.Attribute;
 import org.simpleframework.xml.ElementList;
 import org.simpleframework.xml.Root;
+import org.simpleframework.xml.Serializer;
+import org.simpleframework.xml.core.Persister;
 
+import java.io.IOException;
+import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -81,7 +88,7 @@ public class RevelationData {
             return getEntryGroupById(list, uuid);
     }
 
-    private List<Entry> getEntryGroupById(List<Entry> entries, String uuid) throws Exception {
+    private static List<Entry> getEntryGroupById(List<Entry> entries, String uuid) throws Exception {
         for(Entry e : entries) {
             if(e.type.equals("folder")) {
                 if(e.getUuid().equals(uuid)) {
@@ -97,5 +104,38 @@ public class RevelationData {
 
     public String getUuid() {
         return uuid;
+    }
+
+    public boolean isEdited() {
+        for(Entry e : list) if(e.isEdited()) return true;
+        return false;
+    }
+
+    public void save(String file, String password, ContentResolver contentResolver) throws Exception {
+        Serializer serializer = new Persister();
+
+        OutputStream stream = new OutputStream() {
+            private StringBuilder string = new StringBuilder();
+            @Override
+            public void write(int i) throws IOException {
+                this.string.append((char) i );
+            }
+            public String toString() {
+                return this.string.toString();
+            }
+        };
+
+        serializer.write(this, stream);
+
+        byte[] encrypted = Cryptographer.encrypt(stream.toString(), password);
+
+        OutputStream fop = contentResolver.openOutputStream(Uri.parse(file));
+        fop.write(encrypted);
+        fop.close();
+        cleanUpdateStatus();
+    }
+
+    private void cleanUpdateStatus() {
+        for(Entry e : list) e.cleanUpdateStatus();
     }
 }

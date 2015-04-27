@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.net.Uri;
 import android.os.Bundle;
 import android.view.View;
+import android.widget.Button;
 import com.github.marmaladesky.data.RevelationData;
 import org.simpleframework.xml.Serializer;
 import org.simpleframework.xml.core.Persister;
@@ -20,36 +21,28 @@ public class ARevelation extends Activity {
     String password;
     String currentFile;
 
+    Button saveButton;
+
+
     @Override
     public void onCreate(Bundle savedInstanceState)
     {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main);
         dateFormatter = DateFormat.getDateTimeInstance(DateFormat.DEFAULT, DateFormat.MEDIUM, getResources().getConfiguration().locale);
+        saveButton = (Button)this.findViewById(R.id.saveButton);
     }
 
     public void saveChanges(View view) throws Exception {
+        rvlData.save(currentFile, password, getContentResolver());
+        checkButton();
+    }
 
-        Serializer serializer = new Persister();
-
-        OutputStream stream = new OutputStream() {
-            private StringBuilder string = new StringBuilder();
-            @Override
-            public void write(int i) throws IOException {
-                this.string.append((char) i );
-            }
-            public String toString() {
-                return this.string.toString();
-            }
-        };
-
-        serializer.write(rvlData, stream);
-
-        byte[] encrypted = Cryptographer.encrypt(stream.toString(), password);
-
-        OutputStream fop = getContentResolver().openOutputStream(Uri.parse(currentFile));
-        fop.write(encrypted);
-        fop.close();
+    public void checkButton() {
+        if (rvlData != null && rvlData.isEdited())
+            saveButton.setVisibility(View.VISIBLE);
+        else
+            saveButton.setVisibility(View.GONE);
     }
 
 }

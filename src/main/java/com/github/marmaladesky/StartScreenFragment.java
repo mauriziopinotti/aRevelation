@@ -65,7 +65,6 @@ public class StartScreenFragment extends Fragment {
 		}
 	}
 
-
 	public static class AskPasswordDialog extends DialogFragment {
 
         public String file;
