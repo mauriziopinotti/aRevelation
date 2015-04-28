@@ -19,6 +19,7 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
+import android.widget.Toast;
 import com.github.marmaladesky.data.RevelationData;
 import org.simpleframework.xml.Serializer;
 import org.simpleframework.xml.core.Persister;
@@ -105,6 +106,7 @@ public class StartScreenFragment extends Fragment {
             return builder.create();
 		}
 
+        // OMG, it should be refactored
 		@Override
 		public void onStart() {
 			super.onStart();
@@ -125,7 +127,15 @@ public class StartScreenFragment extends Fragment {
 
 							try {
 								Serializer serializer = new Persister();
-								((ARevelation)getActivity()).rvlData = serializer.read(RevelationData.class, result, false);
+
+                                SelfTestingResult testing = ARevelation.testData(result);
+                                if(testing == SelfTestingResult.Different) {
+                                    Toast.makeText(v.getContext(), getActivity().getString(R.string.self_testing_super_warning), Toast.LENGTH_LONG).show();
+                                } else if (testing == SelfTestingResult.Similar) {
+                                    Toast.makeText(v.getContext(), getActivity().getString(R.string.self_testing_warning), Toast.LENGTH_LONG).show();
+                                }
+
+                                ((ARevelation) getActivity()).rvlData = serializer.read(RevelationData.class, result, false);
 							} catch (Exception e) {
 								e.printStackTrace();
 							}
@@ -139,7 +149,7 @@ public class StartScreenFragment extends Fragment {
 							wantToCloseDialog = true;
 						}
 						catch(Exception e) {
-							System.out.println(e.getMessage());
+							e.printStackTrace();
 							TextView t = (TextView) getDialog().findViewById(R.id.message);
 							t.setText(e.getMessage());
 						}

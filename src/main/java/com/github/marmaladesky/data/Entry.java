@@ -1,15 +1,13 @@
 package com.github.marmaladesky.data;
 
-import org.simpleframework.xml.Attribute;
-import org.simpleframework.xml.Element;
-import org.simpleframework.xml.ElementList;
-import org.simpleframework.xml.Root;
+import org.simpleframework.xml.*;
 
 import java.io.Serializable;
 import java.util.List;
 import java.util.UUID;
 
 @Root
+@Order(elements = {"name", "description", "updated", "notes", "field"})
 public class Entry implements Serializable {
 
     private final String uuid = UUID.randomUUID().toString();
@@ -50,8 +48,8 @@ public class Entry implements Serializable {
                  @ElementList(name = "entry", inline = true, required = false) List<Entry> list) {
         this.type = type;
         this.name = name;
-        this.description = description;
-        this.notes = notes;
+        this.description = description != null ? description : "";
+        this.notes = notes != null ? notes : "";
         this.fields = fields;
         this.updated = updated;
         this.list = list;

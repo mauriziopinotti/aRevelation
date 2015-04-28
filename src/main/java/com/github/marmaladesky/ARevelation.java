@@ -1,18 +1,17 @@
 package com.github.marmaladesky;
 
 import android.app.Activity;
-import android.app.FragmentTransaction;
-import android.net.Uri;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
 import com.github.marmaladesky.data.RevelationData;
+import org.custommonkey.xmlunit.*;
 import org.simpleframework.xml.Serializer;
 import org.simpleframework.xml.core.Persister;
 
-import java.io.IOException;
-import java.io.OutputStream;
+import java.io.*;
 import java.text.DateFormat;
+import java.util.List;
 
 public class ARevelation extends Activity {
 
@@ -86,4 +85,41 @@ public class ARevelation extends Activity {
             saveButton.setVisibility(View.GONE);
     }
 
+    public static SelfTestingResult testData(String xmlData) throws Exception {
+        Serializer serializer1 = new Persister();
+        RevelationData data = serializer1.read(RevelationData.class, xmlData, false);
+
+        Serializer serializer2 = new Persister();
+        Writer writer = new StringWriter();
+        serializer2.write(data, writer);
+
+        XMLUnit.setIgnoreWhitespace(true);
+        Diff diff = new Diff(xmlData, writer.toString());
+
+        if (BuildConfig.DEBUG) {
+            System.out.println("Similar? " + diff.similar());
+            System.out.println("Identical? " + diff.identical());
+            System.out.println(diff);
+
+            DetailedDiff detDiff = new DetailedDiff(diff);
+            List differences = detDiff.getAllDifferences();
+            System.out.println(differences.size() + " diffs founded");
+
+            int counter = 0;
+            for (Object object : differences) {
+                Difference difference = (Difference) object;
+                System.out.println("***********************");
+                System.out.println(difference);
+                System.out.println("***********************");
+                if (++counter > 100) break;
+            }
+            System.out.println(differences.size() + " diffs founded");
+        }
+        if(diff.identical())
+            return SelfTestingResult.Identical;
+        else if (diff.similar())
+            return SelfTestingResult.Similar;
+        else
+            return SelfTestingResult.Different;
+    }
 }

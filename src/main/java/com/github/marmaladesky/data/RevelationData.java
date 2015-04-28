@@ -3,17 +3,15 @@ package com.github.marmaladesky.data;
 import android.content.ContentResolver;
 import android.net.Uri;
 import com.github.marmaladesky.Cryptographer;
-import org.simpleframework.xml.Attribute;
-import org.simpleframework.xml.ElementList;
-import org.simpleframework.xml.Root;
-import org.simpleframework.xml.Serializer;
+import org.simpleframework.xml.*;
 import org.simpleframework.xml.core.Persister;
 
 import java.io.*;
 import java.util.List;
 import java.util.UUID;
 
-@Root
+@Root(name="revelationdata")
+@Order(attributes = {"version", "dataversion"})
 public class RevelationData implements Serializable {
 
     private final String uuid = UUID.randomUUID().toString();
