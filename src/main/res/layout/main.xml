@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/mainContainer"
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
@@ -14,6 +14,7 @@
             android:visibility="gone"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
+            android:layout_alignParentBottom="true"
             android:text="@string/save"
             android:onClick="saveChanges"/>
-</LinearLayout>
+</RelativeLayout>
