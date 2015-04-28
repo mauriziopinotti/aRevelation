@@ -13,6 +13,9 @@ import com.github.marmaladesky.data.FieldWrapper;
 
 public class EditFieldDialog extends DialogFragment {
 
+    private static final String ARGUMENT_FIELD_UUID = "fieldUuid";
+    private static final String ARGUMENT_LISTENER = "listener";
+
     private EditText value;
     private FieldWrapper field;
     private FeedbackListener listener;
@@ -31,11 +34,11 @@ public class EditFieldDialog extends DialogFragment {
     public Dialog onCreateDialog(Bundle savedInstanceState) {
         try {
             if (savedInstanceState == null && getArguments() != null) {
-                field = ((ARevelation) getActivity()).rvlData.getFieldById(getArguments().getString("fieldUuid"));
-                listener = (FeedbackListener) getArguments().getSerializable("listener");
+                field = ((ARevelation) getActivity()).rvlData.getFieldById(getArguments().getString(ARGUMENT_FIELD_UUID));
+                listener = (FeedbackListener) getArguments().getSerializable(ARGUMENT_LISTENER);
             } else if (savedInstanceState != null) {
-                field = ((ARevelation) getActivity()).rvlData.getFieldById(savedInstanceState.getString("fieldUuid"));
-                listener = (FeedbackListener) savedInstanceState.getSerializable("listener");
+                field = ((ARevelation) getActivity()).rvlData.getFieldById(savedInstanceState.getString(ARGUMENT_FIELD_UUID));
+                listener = (FeedbackListener) savedInstanceState.getSerializable(ARGUMENT_LISTENER);
             } else {
                 throw new IllegalArgumentException("Need saved state.");
             }
@@ -69,6 +72,17 @@ public class EditFieldDialog extends DialogFragment {
                 });
 
         return builder.create();
+    }
+
+    @Override
+    public void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        try {
+            outState.putString(ARGUMENT_FIELD_UUID, field.getUuid());
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        outState.putSerializable(ARGUMENT_LISTENER, listener);
     }
 
     @Override

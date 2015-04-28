@@ -132,7 +132,7 @@ public class StartScreenFragment extends Fragment {
 							((ARevelation)getActivity()).currentFile = file;
 
 							getActivity().getFragmentManager().beginTransaction()
-							.replace(R.id.list, nextFrag)
+							.replace(R.id.mainContainer, nextFrag)
 							.addToBackStack(null).commit();
 							wantToCloseDialog = true;
 						}

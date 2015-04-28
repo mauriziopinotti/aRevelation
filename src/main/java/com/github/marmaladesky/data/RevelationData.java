@@ -11,12 +11,12 @@ import org.simpleframework.xml.core.Persister;
 
 import java.io.IOException;
 import java.io.OutputStream;
-import java.util.ArrayList;
+import java.io.Serializable;
 import java.util.List;
 import java.util.UUID;
 
 @Root
-public class RevelationData {
+public class RevelationData implements Serializable {
 
     private final String uuid = UUID.randomUUID().toString();
 

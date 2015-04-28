@@ -67,7 +67,6 @@ public class ItemDialogFragment extends DialogFragment {
                     } catch (Exception e) {
                         e.printStackTrace();
                     }
-                    ;
                 }
             }
         });
@@ -79,6 +78,8 @@ public class ItemDialogFragment extends DialogFragment {
         super.onSaveInstanceState(outState);
         outState.putString(HEADER_KEY, header);
         outState.putString(PASSWORD_KEY, password);
+        outState.putSerializable(FIELD_KEY, field);
+        outState.putSerializable(LISTENER_KEY, listener);
 
     }
 }

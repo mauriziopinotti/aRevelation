@@ -25,6 +25,8 @@ public class EntryFragment extends Fragment {
     private static final String ROW_HEADER_IDENTIFIER = "First Line";
     private static final String ROW_DATA_IDENTIFIER = "Second Line";
 
+    private static final String ARGUMENT_ENTRY_ID = "entryId";
+
 
     private Entry entry;
 
@@ -34,7 +36,7 @@ public class EntryFragment extends Fragment {
         EntryFragment f = new EntryFragment();
 
         Bundle args = new Bundle();
-        args.putString("entryId", entryId);
+        args.putString(ARGUMENT_ENTRY_ID, entryId);
         f.setArguments(args);
 
         return f;
@@ -42,10 +44,10 @@ public class EntryFragment extends Fragment {
 
     @Override
     public View onCreateView(LayoutInflater inflater, final ViewGroup container, Bundle savedInstanceState) {
-        if(savedInstanceState == null || savedInstanceState.getString("entryId") == null)
-            entry = ((ARevelation) getActivity()).rvlData.getEntryById(getArguments().getString("entryId"));
+        if(savedInstanceState == null || savedInstanceState.getString(ARGUMENT_ENTRY_ID) == null)
+            entry = ((ARevelation) getActivity()).rvlData.getEntryById(getArguments().getString(ARGUMENT_ENTRY_ID));
         else
-            entry = ((ARevelation) getActivity()).rvlData.getEntryById(savedInstanceState.getString("entryId"));
+            entry = ((ARevelation) getActivity()).rvlData.getEntryById(savedInstanceState.getString(ARGUMENT_ENTRY_ID));
 
 
         View v = inflater.inflate(R.layout.revelation_entry_browser, container, false);
@@ -132,7 +134,7 @@ public class EntryFragment extends Fragment {
                 String header = item.getText1().getText().toString();
                 String password = item.getText2().getText().toString();
 
-                FieldWrapper fw = null;
+                FieldWrapper fw;
                 Object v = ((HashMap<String, Object>) parent.getAdapter().getItem(position)).get(ROW_DATA_IDENTIFIER);
                 String h = (String) ((HashMap<String, Object>) parent.getAdapter().getItem(position)).get(ROW_HEADER_IDENTIFIER);
                 if (v instanceof String) {

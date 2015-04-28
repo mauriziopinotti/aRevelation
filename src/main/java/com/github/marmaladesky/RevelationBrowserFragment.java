@@ -15,11 +15,15 @@ import android.widget.ListView;
 
 public class RevelationBrowserFragment extends Fragment {
 
+	private static final String ARGUMENT_UUID_LIST = "uuidList";
+
+	private String groupUuid;
+
 	public static RevelationBrowserFragment newInstance(String uuidList) {
 		RevelationBrowserFragment f = new RevelationBrowserFragment();
 
 		Bundle args = new Bundle();
-		args.putString("uuidList", uuidList);
+		args.putString(ARGUMENT_UUID_LIST, uuidList);
 		f.setArguments(args);
 
 		return f;
@@ -28,16 +32,18 @@ public class RevelationBrowserFragment extends Fragment {
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container,
 			Bundle savedInstanceState) {
-		List<Entry> groupUuid;
+		List<Entry> group;
 		View v = inflater.inflate(R.layout.revelation_structure_browser, container, false);
 		try {
-			if (savedInstanceState == null || savedInstanceState.getString("uuidList") == null)
-				groupUuid = ((ARevelation) getActivity()).rvlData.getEntryGroupById(getArguments().getString("uuidList"));
-			else
-				groupUuid = ((ARevelation) getActivity()).rvlData.getEntryGroupById(savedInstanceState.getString("uuidList"));
+			if (savedInstanceState == null || savedInstanceState.getString(ARGUMENT_UUID_LIST) == null) {
+				groupUuid = getArguments().getString(ARGUMENT_UUID_LIST);
+			} else {
+				groupUuid = savedInstanceState.getString(ARGUMENT_UUID_LIST);
+			}
+			group = ((ARevelation) getActivity()).rvlData.getEntryGroupById(groupUuid);
 
 			ListView simple = (ListView) v.findViewById(R.id.rootList);
-			NodeArrayAdapter itemsAdapter = new NodeArrayAdapter(this.getActivity(), android.R.layout.simple_list_item_1, groupUuid);
+			NodeArrayAdapter itemsAdapter = new NodeArrayAdapter(this.getActivity(), android.R.layout.simple_list_item_1, group);
 			simple.setOnItemClickListener(new ListListener());
 			simple.setAdapter(itemsAdapter);
 		} catch (Exception e) {
@@ -47,7 +53,13 @@ public class RevelationBrowserFragment extends Fragment {
 		return v;
 
 	}
-	
+
+	@Override
+	public void onSaveInstanceState(Bundle outState) {
+		super.onSaveInstanceState(outState);
+		if(groupUuid != null) outState.putString(ARGUMENT_UUID_LIST, groupUuid);
+	}
+
 	private class ListListener implements OnItemClickListener {
 
 		public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
@@ -57,13 +69,13 @@ public class RevelationBrowserFragment extends Fragment {
                     EntryFragment nextFrag = EntryFragment.newInstance(n.getUuid());
                     getFragmentManager()
                             .beginTransaction()
-                            .replace(R.id.list, nextFrag)
+                            .replace(R.id.mainContainer, nextFrag)
                             .addToBackStack(null).commit();
                 } else {
 					RevelationBrowserFragment nextFrag = RevelationBrowserFragment.newInstance(n.getUuid());
 					getFragmentManager()
 							.beginTransaction()
-							.replace(R.id.list, nextFrag)
+							.replace(R.id.mainContainer, nextFrag)
 							.addToBackStack(null).commit();
 				}
             } catch(Exception e) {
