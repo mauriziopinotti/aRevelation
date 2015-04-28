@@ -30,7 +30,7 @@ public class StartScreenFragment extends Fragment {
 	@TargetApi(19)
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container,
-			Bundle savedInstanceState) {
+			Bundle savedInstanceState)  {
 		View v = inflater.inflate(R.layout.start_screen, container, false);
 
         Button btnOpen = (Button) v.findViewById(R.id.btnOpen);
@@ -47,6 +47,8 @@ public class StartScreenFragment extends Fragment {
 			}
 		});
         btnOption.setOnClickListener(new OptionButtonListener());
+
+        ((ARevelation) getActivity()).checkButton();
 
 		return v;
 	}

@@ -66,6 +66,19 @@ public class ARevelation extends Activity {
         outState.putString(ARGUMENT_FILE, currentFile);
     }
 
+    @Override
+    public void onBackPressed() {
+        super.onBackPressed();
+        if(getFragmentManager().getBackStackEntryCount() < 1) clearState();
+        checkButton();
+    }
+
+    public void clearState() {
+        rvlData = null;
+        password = null;
+        currentFile = null;
+    }
+
     public void checkButton() {
         if (rvlData != null && rvlData.isEdited())
             saveButton.setVisibility(View.VISIBLE);
