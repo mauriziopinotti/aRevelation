@@ -9,9 +9,7 @@ import org.simpleframework.xml.Root;
 import org.simpleframework.xml.Serializer;
 import org.simpleframework.xml.core.Persister;
 
-import java.io.IOException;
-import java.io.OutputStream;
-import java.io.Serializable;
+import java.io.*;
 import java.util.List;
 import java.util.UUID;
 
@@ -113,21 +111,9 @@ public class RevelationData implements Serializable {
 
     public void save(String file, String password, ContentResolver contentResolver) throws Exception {
         Serializer serializer = new Persister();
-
-        OutputStream stream = new OutputStream() {
-            private StringBuilder string = new StringBuilder();
-            @Override
-            public void write(int i) throws IOException {
-                this.string.append((char) i );
-            }
-            public String toString() {
-                return this.string.toString();
-            }
-        };
-
-        serializer.write(this, stream);
-
-        byte[] encrypted = Cryptographer.encrypt(stream.toString(), password);
+        Writer writer = new StringWriter();
+        serializer.write(this, writer);
+        byte[] encrypted = Cryptographer.encrypt(writer.toString(), password);
 
         OutputStream fop = contentResolver.openOutputStream(Uri.parse(file));
         fop.write(encrypted);
