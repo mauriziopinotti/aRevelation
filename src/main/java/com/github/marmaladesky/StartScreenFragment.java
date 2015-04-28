@@ -133,7 +133,10 @@ public class StartScreenFragment extends Fragment {
                                     Toast.makeText(v.getContext(), getActivity().getString(R.string.self_testing_super_warning), Toast.LENGTH_LONG).show();
                                 } else if (testing == SelfTestingResult.Similar) {
                                     Toast.makeText(v.getContext(), getActivity().getString(R.string.self_testing_warning), Toast.LENGTH_LONG).show();
-                                }
+                                } else if (BuildConfig.DEBUG && testing == SelfTestingResult.Identical) {
+                                    Toast.makeText(v.getContext(), getActivity().getString(R.string.self_testing_passed_message), Toast.LENGTH_LONG).show();
+                                } else
+                                    Toast.makeText(v.getContext(), getActivity().getString(R.string.self_testing_internal_error), Toast.LENGTH_LONG).show();
 
                                 ((ARevelation) getActivity()).rvlData = serializer.read(RevelationData.class, result, false);
 							} catch (Exception e) {
