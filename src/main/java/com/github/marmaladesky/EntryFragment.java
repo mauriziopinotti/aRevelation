@@ -1,5 +1,6 @@
 package com.github.marmaladesky;
 
+import android.app.DialogFragment;
 import android.app.Fragment;
 import android.os.Bundle;
 import android.text.method.PasswordTransformationMethod;
@@ -152,19 +153,9 @@ public class EntryFragment extends Fragment {
                 else {
                     throw new Exception("Unknown data in list");
                 }
-                ItemDialogFragment.newInstance(header, password, fw.getUuid(), new FeedbackListener() {
-                    @Override
-                    public void doSomething() {
-                        getFragmentManager()
-                                .beginTransaction()
-                                .detach(EntryFragment.this)
-                                .commit();
-                        getFragmentManager()
-                                .beginTransaction()
-                                .attach(EntryFragment.this)
-                                .commit();
-                    }
-                }).show(getFragmentManager(), "Tag");
+                DialogFragment dial = ItemDialogFragment.newInstance(header, password, fw.getUuid());
+                dial.setTargetFragment(EntryFragment.this, 0); // Amazing piece of shit, but I don't know how to do it in another way
+                dial.show(getFragmentManager(), "Tag");
             } catch (Exception e) {
                 e.printStackTrace();
             }

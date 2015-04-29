@@ -16,20 +16,17 @@ public class ItemDialogFragment extends DialogFragment {
     private static final String HEADER_KEY = "header";
     private static final String PASSWORD_KEY = "password";
     private static final String FIELD_KEY = "field";
-    private static final String LISTENER_KEY = "listener";
 
     public String header;
     public String password;
     public FieldWrapper field;
-    private FeedbackListener listener;
 
-    public static ItemDialogFragment newInstance(String header, String password, String fieldUuid, FeedbackListener listener) {
+    public static ItemDialogFragment newInstance(String header, String password, String fieldUuid) {
         ItemDialogFragment f = new ItemDialogFragment();
         Bundle args = new Bundle();
         args.putString(HEADER_KEY, header);
         args.putString(PASSWORD_KEY, password);
         args.putString(FIELD_KEY, fieldUuid);
-        args.putSerializable(LISTENER_KEY, listener);
         f.setArguments(args);
         return f;
     }
@@ -41,12 +38,10 @@ public class ItemDialogFragment extends DialogFragment {
                 header = getArguments().getString(HEADER_KEY);
                 password = getArguments().getString(PASSWORD_KEY);
                 field = ((ARevelation) getActivity()).rvlData.getFieldById(getArguments().getString(FIELD_KEY));
-                listener = (FeedbackListener) getArguments().getSerializable(LISTENER_KEY);
             } else if (savedInstanceState != null) {
                 header = savedInstanceState.getString(HEADER_KEY);
                 password = savedInstanceState.getString(PASSWORD_KEY);
                 field = ((ARevelation) getActivity()).rvlData.getFieldById(savedInstanceState.getString(FIELD_KEY));
-                listener = (FeedbackListener) savedInstanceState.getSerializable(LISTENER_KEY);
             } else {
                 throw new IllegalArgumentException("Need saved state.");
             }
@@ -63,7 +58,9 @@ public class ItemDialogFragment extends DialogFragment {
                     clipboard.setPrimaryClip(clip);
                 } else if (which == 1) {
                     try {
-                        EditFieldDialog.newInstance(field.getUuid(), listener).show(getFragmentManager(), "ItemDialogFragment");
+                        DialogFragment dial = EditFieldDialog.newInstance(field.getUuid());
+                        dial.setTargetFragment(ItemDialogFragment.this.getTargetFragment(), 0); // Amazing piece of shit, but I don't know how to do it in another way
+                        dial.show(getFragmentManager(), "ItemDialogFragment");
                     } catch (Exception e) {
                         e.printStackTrace();
                     }
@@ -79,7 +76,6 @@ public class ItemDialogFragment extends DialogFragment {
         outState.putString(HEADER_KEY, header);
         outState.putString(PASSWORD_KEY, password);
         try { outState.putString(FIELD_KEY, field.getUuid()); } catch (Exception e) { e.printStackTrace(); }
-        outState.putSerializable(LISTENER_KEY, listener);
 
     }
 }

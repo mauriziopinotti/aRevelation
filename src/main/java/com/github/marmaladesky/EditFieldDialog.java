@@ -14,17 +14,14 @@ import com.github.marmaladesky.data.FieldWrapper;
 public class EditFieldDialog extends DialogFragment {
 
     private static final String ARGUMENT_FIELD_UUID = "fieldUuid";
-    private static final String ARGUMENT_LISTENER = "listener";
 
     private EditText value;
     private FieldWrapper field;
-    private FeedbackListener listener;
 
-    public static EditFieldDialog newInstance(String fieldUuid, FeedbackListener listener) {
+    public static EditFieldDialog newInstance(String fieldUuid) {
         EditFieldDialog d = new EditFieldDialog();
         Bundle args = new Bundle();
         args.putString("fieldUuid", fieldUuid);
-        args.putSerializable("listener", listener);
         d.setArguments(args);
         return d;
     }
@@ -35,14 +32,12 @@ public class EditFieldDialog extends DialogFragment {
         try {
             if (savedInstanceState == null && getArguments() != null) {
                 field = ((ARevelation) getActivity()).rvlData.getFieldById(getArguments().getString(ARGUMENT_FIELD_UUID));
-                listener = (FeedbackListener) getArguments().getSerializable(ARGUMENT_LISTENER);
             } else if (savedInstanceState != null) {
                 field = ((ARevelation) getActivity()).rvlData.getFieldById(savedInstanceState.getString(ARGUMENT_FIELD_UUID));
-                listener = (FeedbackListener) savedInstanceState.getSerializable(ARGUMENT_LISTENER);
             } else {
                 throw new IllegalArgumentException("Need saved state.");
             }
-        } catch(Exception e) {
+        } catch (Exception e) {
             throw new IllegalArgumentException("Need saved state.", e);
         }
 
@@ -62,6 +57,16 @@ public class EditFieldDialog extends DialogFragment {
                                 } catch (Exception e) {
                                     e.printStackTrace();
                                 }
+
+                                // Amazing piece of shit, but I don't know how to do it in another way
+                                getFragmentManager()
+                                        .beginTransaction()
+                                        .detach(getTargetFragment())
+                                        .commit();
+                                getFragmentManager()
+                                        .beginTransaction()
+                                        .attach(getTargetFragment())
+                                        .commit();
                             }
                         })
 
@@ -82,12 +87,5 @@ public class EditFieldDialog extends DialogFragment {
         } catch (Exception e) {
             e.printStackTrace();
         }
-        outState.putSerializable(ARGUMENT_LISTENER, listener);
-    }
-
-    @Override
-    public void onDetach() {
-        super.onDetach();
-        listener.doSomething();
     }
 }
