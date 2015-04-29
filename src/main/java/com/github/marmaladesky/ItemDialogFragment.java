@@ -78,7 +78,7 @@ public class ItemDialogFragment extends DialogFragment {
         super.onSaveInstanceState(outState);
         outState.putString(HEADER_KEY, header);
         outState.putString(PASSWORD_KEY, password);
-        outState.putSerializable(FIELD_KEY, field);
+        try { outState.putString(FIELD_KEY, field.getUuid()); } catch (Exception e) { e.printStackTrace(); }
         outState.putSerializable(LISTENER_KEY, listener);
 
     }
