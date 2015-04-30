@@ -52,16 +52,28 @@ public class RevelationData implements Serializable {
     }
 
     public FieldWrapper getFieldById(String uuid) throws Exception {
-        for(Entry e : list) {
+        FieldWrapper fw = getFieldById(uuid, list);
+        if(fw != null)
+            return fw;
+        else
+            throw new Exception("Cannot find field with id=" + uuid);
+    }
+
+    private FieldWrapper getFieldById(String uuid, List<Entry> entries) throws Exception {
+        for(Entry e : entries) {
+            if(e.list != null) {
+                FieldWrapper fw = getFieldById(uuid, e.list);
+                if(fw != null) return fw;
+            }
             if(e.fields != null) {
                 for (Field f : e.fields) {
-                        if (e.getUuidName().equals(uuid)) {
-                            return new FieldWrapper("name", e);
-                        } else if (e.getUuidDescription().equals(uuid)) {
-                            return new FieldWrapper("description", e);
-                        } else if (e.getUuidNotes().equals(uuid)) {
-                            return new FieldWrapper("notes", e);
-                        } else if (f != null && f.getUuid().equals(uuid))
+                    if (e.getUuidName().equals(uuid)) {
+                        return new FieldWrapper("name", e);
+                    } else if (e.getUuidDescription().equals(uuid)) {
+                        return new FieldWrapper("description", e);
+                    } else if (e.getUuidNotes().equals(uuid)) {
+                        return new FieldWrapper("notes", e);
+                    } else if (f != null && f.getUuid().equals(uuid))
                         return new FieldWrapper(f);
                 }
             } else {
@@ -74,7 +86,7 @@ public class RevelationData implements Serializable {
                 }
             }
         }
-        throw new Exception("Cannot find field with id=" + uuid);
+        return null;
     }
 
     public List<Entry> getEntryGroupById(String uuid) throws Exception {
