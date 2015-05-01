@@ -23,7 +23,7 @@ public class RevelationData implements Serializable {
     private String dataversion;
 
     @ElementList(inline = true)
-    public List<Entry> list;
+    private List<Entry> list;
 
     public RevelationData(@Attribute(name="version") String version,
                           @Attribute(name="dataversion") String dataversion,
@@ -40,7 +40,7 @@ public class RevelationData implements Serializable {
     private static Entry getEntryById(List<Entry> list, String uuid) {
         if(list != null)
             for(Entry e : list) {
-                if(e.type.equals("folder")) {
+                if(e.type.equals(Entry.TYPE_FOLDER)) {
                     Entry n = getEntryById(e.list, uuid);
                     if(n != null)
                         return n;
@@ -59,7 +59,7 @@ public class RevelationData implements Serializable {
             throw new Exception("Cannot find field with id=" + uuid);
     }
 
-    private FieldWrapper getFieldById(String uuid, List<Entry> entries) throws Exception {
+    private static FieldWrapper getFieldById(String uuid, List<Entry> entries) {
         for(Entry e : entries) {
             if(e.list != null) {
                 FieldWrapper fw = getFieldById(uuid, e.list);
@@ -68,21 +68,21 @@ public class RevelationData implements Serializable {
             if(e.fields != null) {
                 for (Field f : e.fields) {
                     if (e.getUuidName().equals(uuid)) {
-                        return new FieldWrapper("name", e);
+                        return new FieldWrapper(Entry.PROPERTY_NAME, e);
                     } else if (e.getUuidDescription().equals(uuid)) {
-                        return new FieldWrapper("description", e);
+                        return new FieldWrapper(Entry.PROPERTY_DESCRIPTION, e);
                     } else if (e.getUuidNotes().equals(uuid)) {
-                        return new FieldWrapper("notes", e);
+                        return new FieldWrapper(Entry.PROPERTY_NOTES, e);
                     } else if (f != null && f.getUuid().equals(uuid))
                         return new FieldWrapper(f);
                 }
             } else {
                 if (e.getUuidName().equals(uuid)) {
-                    return new FieldWrapper("name", e);
+                    return new FieldWrapper(Entry.PROPERTY_NAME, e);
                 } else if (e.getUuidDescription().equals(uuid)) {
-                    return new FieldWrapper("description", e);
+                    return new FieldWrapper(Entry.PROPERTY_DESCRIPTION, e);
                 } else if (e.getUuidNotes().equals(uuid)) {
-                    return new FieldWrapper("notes", e);
+                    return new FieldWrapper(Entry.PROPERTY_NOTES, e);
                 }
             }
         }
@@ -90,15 +90,20 @@ public class RevelationData implements Serializable {
     }
 
     public List<Entry> getEntryGroupById(String uuid) throws Exception {
-        if(this.uuid.equals(uuid))
+        if(this.uuid.equals(uuid)) {
             return list;
-        else
-            return getEntryGroupById(list, uuid);
+        } else {
+            List<Entry> l = getEntryGroupById(list, uuid);
+            if(l != null)
+                return getEntryGroupById(list, uuid);
+            else
+                throw new Exception("Cannot find group with id = " + uuid);
+        }
     }
 
-    private static List<Entry> getEntryGroupById(List<Entry> entries, String uuid) throws Exception {
+    private static List<Entry> getEntryGroupById(List<Entry> entries, String uuid) {
         for(Entry e : entries) {
-            if(e.type.equals("folder")) {
+            if(e.type.equals(Entry.TYPE_FOLDER)) {
                 if(e.getUuid().equals(uuid)) {
                     return e.list;
                 } else {

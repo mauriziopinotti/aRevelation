@@ -21,7 +21,7 @@ public class EditFieldDialog extends DialogFragment {
     public static EditFieldDialog newInstance(String fieldUuid) {
         EditFieldDialog d = new EditFieldDialog();
         Bundle args = new Bundle();
-        args.putString("fieldUuid", fieldUuid);
+        args.putString(ARGUMENT_FIELD_UUID, fieldUuid);
         d.setArguments(args);
         return d;
     }

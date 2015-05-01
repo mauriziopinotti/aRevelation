@@ -10,25 +10,32 @@ import java.util.UUID;
 @Order(elements = {"name", "description", "updated", "notes", "field"})
 public class Entry implements Serializable {
 
+    public static final String PROPERTY_NAME = "name";
+    public static final String PROPERTY_DESCRIPTION = "description";
+    public static final String PROPERTY_UPDATED = "updated";
+    public static final String PROPERTY_NOTES = "notes";
+
+    public static final String TYPE_FOLDER = "folder";
+
     private final String uuid = UUID.randomUUID().toString();
 
     @Attribute(name="type")
     public String type;
 
-    @Element(name = "name")
+    @Element(name = PROPERTY_NAME)
     private String name;
     private boolean isNameUpdated;
     private final String uuidName = UUID.randomUUID().toString();
 
-    @Element(name = "description", required = false)
+    @Element(name = PROPERTY_DESCRIPTION, required = false)
     private String description;
     private boolean isDescriptionUpdated;
     private final String uuidDescription = UUID.randomUUID().toString();
 
-    @Element(name = "updated")
+    @Element(name = PROPERTY_UPDATED)
     public long updated;
 
-    @Element(name = "notes", required = false)
+    @Element(name = PROPERTY_NOTES, required = false)
     private String notes;
     private boolean isNotesUpdated;
     private final String uuidNotes = UUID.randomUUID().toString();
@@ -40,11 +47,11 @@ public class Entry implements Serializable {
     public List<Entry> list;
 
     public Entry(@Attribute(name="type") String type,
-                 @Element(name = "name") String name,
-                 @Element(name = "description", required = false) String description,
-                 @Element(name = "notes", required = false) String notes,
+                 @Element(name = PROPERTY_NAME) String name,
+                 @Element(name = PROPERTY_DESCRIPTION, required = false) String description,
+                 @Element(name = PROPERTY_NOTES, required = false) String notes,
                  @ElementList(inline = true, required = false) List<Field> fields,
-                 @Element(name = "updated") long updated,
+                 @Element(name = PROPERTY_UPDATED) long updated,
                  @ElementList(name = "entry", inline = true, required = false) List<Entry> list) {
         this.type = type;
         this.name = name;

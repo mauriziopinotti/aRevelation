@@ -19,15 +19,15 @@ import java.util.zip.Inflater;
 
 public class Cryptographer {
 
-    final static byte[] MAGIC_STRING_DATA_VERSION_2 = new byte[] {'r', 'v', 'l', 0, 2, 0};
-    final static byte[] VERSION_0_4_7 = new byte[] {0, 4, 7};
+    private final static byte[] MAGIC_STRING_DATA_VERSION_2 = new byte[] {'r', 'v', 'l', 0, 2, 0};
+    private final static byte[] VERSION_0_4_7 = new byte[] {0, 4, 7};
 
     public static String decrypt(byte[] fileData, String password) throws Exception {
         byte[] header;
         header = Arrays.copyOfRange(fileData, 0, 36);
 
-        byte[] iv = null;
-        byte[] salt = null;
+        byte[] iv;
+        byte[] salt;
 
         if(Arrays.equals(Arrays.copyOfRange(header, 0, 6), MAGIC_STRING_DATA_VERSION_2)) {
             if(Arrays.equals(VERSION_0_4_7, Arrays.copyOfRange(header, 6, 9))) {

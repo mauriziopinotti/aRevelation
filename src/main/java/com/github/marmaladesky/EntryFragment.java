@@ -125,7 +125,7 @@ public class EntryFragment extends Fragment {
         if(entry != null) outState.putString("entryId", entry.getUuid());
     }
 
-    public class PasswordOnClickListener implements AdapterView.OnItemClickListener {
+    private class PasswordOnClickListener implements AdapterView.OnItemClickListener {
 
         @Override
         public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
@@ -141,11 +141,11 @@ public class EntryFragment extends Fragment {
                 if (v instanceof String) {
                     String prop = null;
                     if (h.equals(getString(R.string.name))) {
-                        prop = "name";
+                        prop = Entry.PROPERTY_NAME;
                     } else if (h.equals(getString(R.string.description))) {
-                        prop = "description";
+                        prop = Entry.PROPERTY_DESCRIPTION;
                     } else if (h.equals(getString(R.string.notes))) {
-                        prop = "notes";
+                        prop = Entry.PROPERTY_NOTES;
                     }
                     fw = new FieldWrapper(prop, EntryFragment.this.entry);
                 } else if (v instanceof Field)

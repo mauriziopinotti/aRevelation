@@ -25,7 +25,7 @@ public class ARevelation extends Activity {
     String password;
     String currentFile;
 
-    Button saveButton;
+    private Button saveButton;
 
 
     @Override
@@ -72,7 +72,7 @@ public class ARevelation extends Activity {
         checkButton();
     }
 
-    public void clearState() {
+    private void clearState() {
         rvlData = null;
         password = null;
         currentFile = null;

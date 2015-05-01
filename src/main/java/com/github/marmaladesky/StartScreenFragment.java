@@ -26,7 +26,7 @@ import org.simpleframework.xml.core.Persister;
 
 public class StartScreenFragment extends Fragment {
 
-	static final int REQUEST_FILE_OPEN = 1;
+	private static final int REQUEST_FILE_OPEN = 1;
 
 	@TargetApi(19)
 	@Override

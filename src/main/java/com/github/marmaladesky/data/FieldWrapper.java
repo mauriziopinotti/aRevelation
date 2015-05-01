@@ -23,9 +23,9 @@ public class FieldWrapper implements Serializable {
             return field.getValue();
         } else if (entry != null) {
             switch (property) {
-                case "name": return entry.getName();
-                case "description": return entry.getDescription();
-                case "notes": return entry.getNotes();
+                case Entry.PROPERTY_NAME: return entry.getName();
+                case Entry.PROPERTY_DESCRIPTION: return entry.getDescription();
+                case Entry.PROPERTY_NOTES: return entry.getNotes();
             }
             return null;
         } else
@@ -37,12 +37,9 @@ public class FieldWrapper implements Serializable {
             field.setValue(newVal);
         } else if (entry != null) {
             switch (property) {
-                case "name":
-                    entry.setName(newVal); break;
-                case "description":
-                    entry.setDescription(newVal); break;
-                case "notes":
-                    entry.setNotes(newVal); break;
+                case Entry.PROPERTY_NAME: entry.setName(newVal); break;
+                case Entry.PROPERTY_DESCRIPTION: entry.setDescription(newVal); break;
+                case Entry.PROPERTY_NOTES: entry.setNotes(newVal); break;
                 default: throw new Exception("Unknown Entity property " + property);
             }
         }
@@ -53,9 +50,9 @@ public class FieldWrapper implements Serializable {
             return field.getUuid();
         } else {
             switch (property) {
-                case "name": return entry.getUuidName();
-                case "description": return entry.getUuidDescription();
-                case "notes": return entry.getUuidNotes();
+                case Entry.PROPERTY_NAME: return entry.getUuidName();
+                case Entry.PROPERTY_DESCRIPTION: return entry.getUuidDescription();
+                case Entry.PROPERTY_NOTES: return entry.getUuidNotes();
             }
         }
         throw new Exception("Unknown state");

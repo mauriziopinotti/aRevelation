@@ -65,7 +65,7 @@ public class RevelationBrowserFragment extends Fragment {
 		public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
             try {
                 Entry n = (Entry) parent.getItemAtPosition(position);
-                if (!n.type.equals("folder")) {
+                if (!n.type.equals(Entry.TYPE_FOLDER)) {
                     EntryFragment nextFrag = EntryFragment.newInstance(n.getUuid());
                     getFragmentManager()
                             .beginTransaction()

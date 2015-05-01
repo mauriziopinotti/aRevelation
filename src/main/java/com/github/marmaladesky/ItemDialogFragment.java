@@ -17,9 +17,9 @@ public class ItemDialogFragment extends DialogFragment {
     private static final String PASSWORD_KEY = "password";
     private static final String FIELD_KEY = "field";
 
-    public String header;
-    public String password;
-    public FieldWrapper field;
+    private String header;
+    private String password;
+    private FieldWrapper field;
 
     public static ItemDialogFragment newInstance(String header, String password, String fieldUuid) {
         ItemDialogFragment f = new ItemDialogFragment();
