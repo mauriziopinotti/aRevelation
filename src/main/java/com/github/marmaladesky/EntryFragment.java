@@ -133,7 +133,6 @@ public class EntryFragment extends Fragment {
                 TwoLineListItem item = (TwoLineListItem) view;
 
                 String header = item.getText1().getText().toString();
-                String password = item.getText2().getText().toString();
 
                 FieldWrapper fw;
                 Object v = ((HashMap<String, Object>) parent.getAdapter().getItem(position)).get(ROW_DATA_IDENTIFIER);
@@ -153,7 +152,7 @@ public class EntryFragment extends Fragment {
                 else {
                     throw new Exception("Unknown data in list");
                 }
-                DialogFragment dial = ItemDialogFragment.newInstance(header, password, fw.getUuid());
+                DialogFragment dial = ItemDialogFragment.newInstance(header, fw.getUuid());
                 dial.setTargetFragment(EntryFragment.this, 0); // Amazing piece of shit, but I don't know how to do it in another way
                 dial.show(getFragmentManager(), "Tag");
             } catch (Exception e) {

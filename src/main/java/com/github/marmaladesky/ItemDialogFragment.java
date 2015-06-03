@@ -14,18 +14,15 @@ public class ItemDialogFragment extends DialogFragment {
 
 
     private static final String HEADER_KEY = "header";
-    private static final String PASSWORD_KEY = "password";
     private static final String FIELD_KEY = "field";
 
     private String header;
-    private String password;
     private FieldWrapper field;
 
-    public static ItemDialogFragment newInstance(String header, String password, String fieldUuid) {
+    public static ItemDialogFragment newInstance(String header, String fieldUuid) {
         ItemDialogFragment f = new ItemDialogFragment();
         Bundle args = new Bundle();
         args.putString(HEADER_KEY, header);
-        args.putString(PASSWORD_KEY, password);
         args.putString(FIELD_KEY, fieldUuid);
         f.setArguments(args);
         return f;
@@ -36,11 +33,9 @@ public class ItemDialogFragment extends DialogFragment {
         try {
             if (savedInstanceState == null && getArguments() != null) {
                 header = getArguments().getString(HEADER_KEY);
-                password = getArguments().getString(PASSWORD_KEY);
                 field = ((ARevelation) getActivity()).rvlData.getFieldById(getArguments().getString(FIELD_KEY));
             } else if (savedInstanceState != null) {
                 header = savedInstanceState.getString(HEADER_KEY);
-                password = savedInstanceState.getString(PASSWORD_KEY);
                 field = ((ARevelation) getActivity()).rvlData.getFieldById(savedInstanceState.getString(FIELD_KEY));
             } else {
                 throw new IllegalArgumentException("Need saved state.");
@@ -54,7 +49,7 @@ public class ItemDialogFragment extends DialogFragment {
             public void onClick(DialogInterface dialog, int which) {
                 if (which == 0) {
                     ClipboardManager clipboard = (ClipboardManager) getActivity().getSystemService(Context.CLIPBOARD_SERVICE);
-                    ClipData clip = ClipData.newPlainText("pass", password);
+                    ClipData clip = ClipData.newPlainText("aRevelation copied data", field.getFieldValue());
                     clipboard.setPrimaryClip(clip);
                 } else if (which == 1) {
                     try {
@@ -74,7 +69,6 @@ public class ItemDialogFragment extends DialogFragment {
     public void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
         outState.putString(HEADER_KEY, header);
-        outState.putString(PASSWORD_KEY, password);
         try { outState.putString(FIELD_KEY, field.getUuid()); } catch (Exception e) { e.printStackTrace(); }
 
     }
