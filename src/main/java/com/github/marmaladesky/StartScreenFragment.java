@@ -7,15 +7,18 @@ import java.io.InputStream;
 import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
 import android.app.*;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
@@ -68,6 +71,7 @@ public class StartScreenFragment extends Fragment {
 		}
 	}
 
+
 	public static class AskPasswordDialog extends DialogFragment {
 
         public String file;
@@ -99,14 +103,13 @@ public class StartScreenFragment extends Fragment {
 					})
 							
 				.setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
-					public void onClick(DialogInterface dialog, int id) {
-						dialog.cancel();
-						}
-				});
+                    public void onClick(DialogInterface dialog, int id) {
+                        dialog.cancel();
+                    }
+                });
             return builder.create();
 		}
 
-        // OMG, it should be refactored
 		@Override
 		public void onStart() {
 			super.onStart();
@@ -115,73 +118,134 @@ public class StartScreenFragment extends Fragment {
 				Button positiveButton = d.getButton(Dialog.BUTTON_POSITIVE);
 			    positiveButton.setOnClickListener(new View.OnClickListener() {
 			    	public void onClick(View v) {
-			    		Boolean wantToCloseDialog = false;
-			            EditText password = (EditText) getDialog().findViewById(R.id.password);
-									
-						String result;
+                        EditText passwordEdit = ((EditText) getDialog().findViewById(R.id.password));
 
-						try {
-							InputStream iStream = getActivity().getContentResolver().openInputStream(Uri.parse(file));
-							byte[] inputData = getBytes(iStream);
-							result = Cryptographer.decrypt(inputData, password.getText().toString());
+                        // Hide keyboard
+                        InputMethodManager imm = (InputMethodManager)getActivity().getSystemService(
+                                Context.INPUT_METHOD_SERVICE);
+                        imm.hideSoftInputFromWindow(passwordEdit.getWindowToken(), 0);
 
-							try {
-								Serializer serializer = new Persister();
-
-                                SelfTestingResult testing = ARevelation.testData(result);
-                                if(testing == SelfTestingResult.Different) {
-                                    Toast.makeText(v.getContext(), getActivity().getString(R.string.self_testing_super_warning), Toast.LENGTH_LONG).show();
-                                } else if (testing == SelfTestingResult.Similar) {
-                                    Toast.makeText(v.getContext(), getActivity().getString(R.string.self_testing_warning), Toast.LENGTH_LONG).show();
-                                } else if (BuildConfig.DEBUG && testing == SelfTestingResult.Identical) {
-                                    Toast.makeText(v.getContext(), getActivity().getString(R.string.self_testing_passed_message), Toast.LENGTH_LONG).show();
-                                } else
-                                    Toast.makeText(v.getContext(), getActivity().getString(R.string.self_testing_internal_error), Toast.LENGTH_LONG).show();
-
-                                ((ARevelation) getActivity()).rvlData = serializer.read(RevelationData.class, result, false);
-							} catch (Exception e) {
-								e.printStackTrace();
-							}
-							RevelationBrowserFragment nextFrag = RevelationBrowserFragment.newInstance(((ARevelation)getActivity()).rvlData.getUuid());
-							((ARevelation)getActivity()).password = password.getText().toString();
-							((ARevelation)getActivity()).currentFile = file;
-
-							getActivity().getFragmentManager().beginTransaction()
-							.replace(R.id.mainContainer, nextFrag)
-							.addToBackStack(null).commit();
-							wantToCloseDialog = true;
-						}
-						catch(Exception e) {
-							e.printStackTrace();
-							TextView t = (TextView) getDialog().findViewById(R.id.message);
-							t.setText(e.getMessage());
-						}
-						
-						if(wantToCloseDialog)
-							dismiss(); //else dialog stays open
-						}
+                        (new DecryptTask(v.getContext())).execute(passwordEdit.getText().toString(), file, v.getContext());
+                    }
 			    });
 			}
 		}
-
-        private byte[] getBytes(InputStream inputStream) throws IOException {
-            ByteArrayOutputStream byteBuffer = new ByteArrayOutputStream();
-            int bufferSize = 1024;
-            byte[] buffer = new byte[bufferSize];
-
-            int len;
-            while ((len = inputStream.read(buffer)) != -1) {
-                byteBuffer.write(buffer, 0, len);
-            }
-            return byteBuffer.toByteArray();
-        }
 
         @Override
         public void onSaveInstanceState(Bundle outState) {
             super.onSaveInstanceState(outState);
             outState.putString("file", file);
         }
+
+        private class DecryptTask extends AsyncTask<Object, Void, DecryptTask.DecryptTaskResult> {
+
+            private Context context;
+            private ProgressDialog progressDialog;
+            private String password;
+
+            DecryptTask(Context context) {
+                this.context = context;
+            }
+
+            @Override
+            protected DecryptTask.DecryptTaskResult doInBackground(Object... params) {
+                final String password = (String) params[0];
+                final String file = (String) params[1];
+                try {
+                    DecryptTaskResult res = new DecryptTaskResult();
+                    InputStream iStream = AskPasswordDialog.this.getActivity().getContentResolver().openInputStream(Uri.parse(file));
+                    byte[] inputData = getBytes(iStream);
+
+                    this.password = password;
+
+                    String result = Cryptographer.decrypt(inputData, password);
+                    Serializer serializer = new Persister();
+                    res.data = serializer.read(RevelationData.class, result, false);
+
+
+                    try {
+                        SelfTestingResult testing = ARevelation.testData(result);
+                        if(testing == SelfTestingResult.Different) {
+                            res.toastMessage = R.string.self_testing_super_warning;
+                        } else if (testing == SelfTestingResult.Similar) {
+                            res.toastMessage = R.string.self_testing_warning;
+                        } else if (BuildConfig.DEBUG && testing == SelfTestingResult.Identical) {
+                            res.toastMessage = R.string.self_testing_passed_message;
+                        } else
+                            res.toastMessage = R.string.self_testing_internal_error;
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                    return res;
+                } catch (Exception e) {
+                    return new DecryptTaskResult(e);
+                }
+            }
+
+            @Override
+            protected void onPreExecute() {
+                super.onPreExecute();
+                progressDialog = ProgressDialog.show(context, null, getActivity().getString(R.string.decrypt_progress_bar_label));
+            }
+
+            @Override
+            protected void onPostExecute(DecryptTaskResult s) {
+                super.onPostExecute(s);
+                progressDialog.dismiss();
+
+                if(!isCancelled()) {
+                    if(!s.isFail) {
+                        Toast.makeText(context, getActivity().getString(s.toastMessage), Toast.LENGTH_LONG).show();
+                        ((ARevelation) getActivity()).rvlData = s.data;
+
+                        RevelationBrowserFragment nextFrag = RevelationBrowserFragment.newInstance(((ARevelation) getActivity()).rvlData.getUuid());
+                        ((ARevelation) getActivity()).password = password;
+                        ((ARevelation) getActivity()).currentFile = file;
+
+                        getActivity().getFragmentManager().beginTransaction()
+                                .replace(R.id.mainContainer, nextFrag)
+                                .addToBackStack(null).commit();
+
+                        AskPasswordDialog.this.dismiss();
+                    } else {
+                        TextView t = (TextView) getDialog().findViewById(R.id.message);
+                        t.setText(s.exception.getMessage());
+                    }
+                }
+            }
+
+            class DecryptTaskResult {
+
+                Integer toastMessage;
+                RevelationData data;
+                boolean isFail;
+                Throwable exception;
+
+                DecryptTaskResult() {}
+
+                DecryptTaskResult(Throwable e) {
+                    exception = e;
+                    isFail = true;
+                }
+
+            }
+
+            private byte[] getBytes(InputStream inputStream) throws IOException {
+                ByteArrayOutputStream byteBuffer = new ByteArrayOutputStream();
+                int bufferSize = 1024;
+                byte[] buffer = new byte[bufferSize];
+
+                int len;
+                while ((len = inputStream.read(buffer)) != -1) {
+                    byteBuffer.write(buffer, 0, len);
+                }
+                return byteBuffer.toByteArray();
+            }
+
+        }
+
     }
+
 
     private static class OptionButtonListener implements OnClickListener {
 
@@ -190,4 +254,6 @@ public class StartScreenFragment extends Fragment {
 
         }
     }
+
+
 }
