@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">aRevelation</string>
+    <string name="ask_password_message">Input password</string>
+    <string name="cancel">Cancel</string>
+    <string name="createNew">New</string>
+    <string name="creditcard_cardnumber">Card number</string>
+    <string name="creditcard_cardtype">Card type</string>
+    <string name="creditcard_ccv">CCV</string>
+    <string name="creditcard_expirydate">Expiry date</string>
+    <string name="decrypt_progress_bar_label">Decrypting…</string>
+    <string name="description">Description</string>
+    <string name="generic_database">Database</string>
+    <string name="generic_domain">Domain</string>
+    <string name="generic_email">Email</string>
+    <string name="generic_hostname">Hostname</string>
+    <string name="generic_password">Password</string>
+    <string name="generic_pin">PIN</string>
+    <string name="generic_url">Url</string>
+    <string name="generic_username">Username</string>
+    <string name="name">Name</string>
+    <string name="notes">Notes</string>
+    <string name="open">Open</string>
+    <string name="recent">Recent</string>
+    <string name="save">Save</string>
+    <string name="self_testing_internal_error">Internal unknown error of self testing. Be careful.</string>
+    <string name="self_testing_passed_message">Self testing passed. Editing is safe.</string>
+    <string name="self_testing_super_warning">Super Warning! Editing and saving will cause data lost! Be careful.</string>
+    <string name="self_testing_warning">Warning! Editing and saving could cause data lost! Be careful.</string>
+    <string name="settings">Settings</string>
+    <string name="updated">Updated</string>
+</resources>

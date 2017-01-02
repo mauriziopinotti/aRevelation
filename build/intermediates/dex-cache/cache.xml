@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<items version="2" >
+
+    <item
+        jar="/home/maurix/.gradle/caches/modules-2/files-2.1/stax/stax/1.2.0/c434800de5e4bbe1822805be5fb1c32d6834f830/stax-1.2.0.jar"
+        jumboMode="false"
+        revision="23.0.3"
+        sha1="c434800de5e4bbe1822805be5fb1c32d6834f830">
+        <dex dex="/home/maurix/Projects/aRevelation/build/intermediates/pre-dexed/debug/stax-1.2.0_32d65c349bed488f849e0bcbd67dcdf75e48ccb8.jar" />
+    </item>
+    <item
+        jar="/home/maurix/.gradle/caches/modules-2/files-2.1/xmlunit/xmlunit/1.6/adcae0aff916681dacd2b490e193f1119cd964a9/xmlunit-1.6.jar"
+        jumboMode="false"
+        revision="23.0.3"
+        sha1="adcae0aff916681dacd2b490e193f1119cd964a9">
+        <dex dex="/home/maurix/Projects/aRevelation/build/intermediates/pre-dexed/debug/xmlunit-1.6_139c45b658e2e05d8d6d888ae0ffccf852663c4e.jar" />
+    </item>
+    <item
+        jar="/home/maurix/.gradle/caches/modules-2/files-2.1/org.simpleframework/simple-xml/2.7.1/dd91fb744c2ff921407475cb29a1e3fee397d411/simple-xml-2.7.1.jar"
+        jumboMode="false"
+        revision="23.0.3"
+        sha1="dd91fb744c2ff921407475cb29a1e3fee397d411">
+        <dex dex="/home/maurix/Projects/aRevelation/build/intermediates/pre-dexed/debug/simple-xml-2.7.1_dbcbcdf6804a5c5bd9e02d9eda54e58bf2323d36.jar" />
+    </item>
+
+</items>

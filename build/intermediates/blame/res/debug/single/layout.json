@@ -1,0 +1,26 @@
+[
+    {
+        "merged": "/home/maurix/Projects/aRevelation/build/intermediates/res/merged/debug/layout/main.xml",
+        "source": "/home/maurix/Projects/aRevelation/src/main/res/layout/main.xml"
+    },
+    {
+        "merged": "/home/maurix/Projects/aRevelation/build/intermediates/res/merged/debug/layout/edit_field_dialog.xml",
+        "source": "/home/maurix/Projects/aRevelation/src/main/res/layout/edit_field_dialog.xml"
+    },
+    {
+        "merged": "/home/maurix/Projects/aRevelation/build/intermediates/res/merged/debug/layout/revelation_structure_browser.xml",
+        "source": "/home/maurix/Projects/aRevelation/src/main/res/layout/revelation_structure_browser.xml"
+    },
+    {
+        "merged": "/home/maurix/Projects/aRevelation/build/intermediates/res/merged/debug/layout/ask_password_dialog.xml",
+        "source": "/home/maurix/Projects/aRevelation/src/main/res/layout/ask_password_dialog.xml"
+    },
+    {
+        "merged": "/home/maurix/Projects/aRevelation/build/intermediates/res/merged/debug/layout/revelation_entry_browser.xml",
+        "source": "/home/maurix/Projects/aRevelation/src/main/res/layout/revelation_entry_browser.xml"
+    },
+    {
+        "merged": "/home/maurix/Projects/aRevelation/build/intermediates/res/merged/debug/layout/start_screen.xml",
+        "source": "/home/maurix/Projects/aRevelation/src/main/res/layout/start_screen.xml"
+    }
+]
